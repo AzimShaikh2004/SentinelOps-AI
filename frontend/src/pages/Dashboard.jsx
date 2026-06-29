@@ -746,7 +746,7 @@ const Dashboard = () => {
               <div style={{ fontSize: "11px", fontWeight: "700", color: "#38bdf8", textTransform: "uppercase", marginBottom: "4px" }}>Windows (PowerShell)</div>
               <div style={{ position: "relative", background: "rgba(0,0,0,0.3)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
                 <pre style={{ margin: 0, fontSize: "11px", color: "#cbd5e1", whiteSpace: "pre-wrap", wordBreak: "break-all", fontFamily: "monospace" }}>
-                  {`powershell -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; $env:API_KEY='${apiKeys[0]?.key || "YOUR_API_KEY"}'; $env:BACKEND_URL='${API_BASE_URL}'; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/AzimShaikh2004/SentinelOps-AI/main/agent/install.ps1'))"`}
+                  {`$env:API_KEY='${apiKeys[0]?.key || "YOUR_API_KEY"}'; $env:BACKEND_URL='${API_BASE_URL}'; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/AzimShaikh2004/SentinelOps-AI/main/agent/install.ps1'))`}
                 </pre>
               </div>
             </div>

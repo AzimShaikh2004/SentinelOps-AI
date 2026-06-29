@@ -54,7 +54,7 @@ Set-Content -Path (Join-Path $installDir ".env") -Value $envContent -Force
 Write-Host "Installing required dependencies via npm (this may take a few seconds)..."
 Push-Location $installDir
 try {
-    Start-Process npm -ArgumentList "install --no-audit --no-fund" -NoNewWindow -Wait
+    cmd.exe /c "npm install --no-audit --no-fund"
     Write-Host "Dependencies installed successfully." -ForegroundColor Green
 } catch {
     Write-Error "npm install failed. Please check local npm configuration."
