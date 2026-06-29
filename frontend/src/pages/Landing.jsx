@@ -448,7 +448,7 @@ const Landing = () => {
           <FeatureCard
             svgIcon={FeatureIcons.globe}
             title="Multi-Server Fleet View"
-            description="Deploy lightweight Node.js agents on any machine. Each agent authenticates via API key and streams metrics to a unified command center with online/offline tracking."
+            description="Deploy lightweight agents on any machine with pre-configured one-click installation scripts. Each agent authenticates via API key and streams metrics to a unified command center."
             gradient="linear-gradient(135deg, rgba(6, 214, 160, 0.05), rgba(251, 191, 36, 0.08))"
             glowColor="rgba(6, 214, 160, 0.1)"
             delay={500}

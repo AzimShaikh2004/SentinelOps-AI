@@ -737,6 +737,29 @@ const Dashboard = () => {
               ))
             )}
           </div>
+
+          <div style={{ marginTop: "24px", borderTop: "1px solid rgba(255, 255, 255, 0.06)", paddingTop: "20px" }}>
+            <h3 style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: "700", color: "#f1f5f9" }}>🛡️ One-Click Agent Installer</h3>
+            <p style={{ color: "#64748b", fontSize: "12px", marginBottom: "12px" }}>Copy and paste this command onto your server to install the monitoring agent automatically.</p>
+            
+            <div style={{ marginBottom: "12px" }}>
+              <div style={{ fontSize: "11px", fontWeight: "700", color: "#38bdf8", textTransform: "uppercase", marginBottom: "4px" }}>Windows (PowerShell)</div>
+              <div style={{ position: "relative", background: "rgba(0,0,0,0.3)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
+                <pre style={{ margin: 0, fontSize: "11px", color: "#cbd5e1", whiteSpace: "pre-wrap", wordBreak: "break-all", fontFamily: "monospace" }}>
+                  {`powershell -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; $env:API_KEY='${apiKeys[0]?.key || "YOUR_API_KEY"}'; $env:BACKEND_URL='${API_BASE_URL}'; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/AzimShaikh2004/SentinelOps-AI/main/agent/install.ps1'))"`}
+                </pre>
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: "11px", fontWeight: "700", color: "#a78bfa", textTransform: "uppercase", marginBottom: "4px" }}>Linux / macOS (Bash)</div>
+              <div style={{ position: "relative", background: "rgba(0,0,0,0.3)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
+                <pre style={{ margin: 0, fontSize: "11px", color: "#cbd5e1", whiteSpace: "pre-wrap", wordBreak: "break-all", fontFamily: "monospace" }}>
+                  {`curl -fsSL https://raw.githubusercontent.com/AzimShaikh2004/SentinelOps-AI/main/agent/install.sh | API_KEY="${apiKeys[0]?.key || "YOUR_API_KEY"}" BACKEND_URL="${API_BASE_URL}" bash`}
+                </pre>
+              </div>
+            </div>
+          </div>
         </ModalOverlay>
       )}
 

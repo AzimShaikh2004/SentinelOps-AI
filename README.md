@@ -206,12 +206,13 @@ Additional Autopilot Features:
 - **Protected Routes** — Middleware guards for authenticated and role-restricted endpoints
 - **Socket Authentication** — WebSocket connections require either JWT token or API key
 
-### 14. 🔐 API Key Management
+### 14. 🔐 API Key Management & One-Click Installer
 - **Key Generation** — Cryptographically secure keys (`sentinel_` prefix + 48 hex chars) via `crypto.randomBytes`
 - **Key Description** — Optional description for identification (e.g., "Production VM")
 - **Key Revocation** — Delete/revoke keys from the dashboard modal
 - **Agent Auth** — Agents use API keys to authenticate their WebSocket connections
 - **Per-User Scoping** — Each user manages their own set of API keys
+- **One-Click Installer** — Pre-configured PowerShell (Windows) and Bash (Linux) installation commands generated inside the modal with auto-injected API keys and backend URLs
 
 ### 15. 🔔 Notification Center
 - **In-App Notifications** — Real-time notification bell with unread count badge
