@@ -390,6 +390,91 @@ const Landing = () => {
         <DashboardPreview />
       </section>
 
+      {/* ═══ QUICK START SECTION ═══ */}
+      <section id="quickstart" className="features-section" style={{ background: "rgba(15, 23, 42, 0.3)", borderTop: "1px solid rgba(255, 255, 255, 0.03)", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", padding: "80px 0" }}>
+        <div className="section-header">
+          <span className="section-eyebrow">QUICK START</span>
+          <h2 className="section-heading">
+            Get started in
+            <span className="text-gradient"> 3 simple steps</span>
+          </h2>
+          <p className="section-subheading">
+            SentinelOps AI makes server monitoring simple. Set up your first agent and start streaming live metrics in minutes.
+          </p>
+        </div>
+
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "30px",
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "0 24px"
+        }}>
+          {[
+            {
+              num: "1",
+              title: "Create Account",
+              desc: "Sign up and register as an administrator or SRE engineer in seconds to access your secure dashboard.",
+              icon: "👤",
+              color: "#06d6a0"
+            },
+            {
+              num: "2",
+              title: "Generate API Key",
+              desc: "Access your dashboard, open the 'API Keys' portal, and generate a new secure connection token.",
+              icon: "🔑",
+              color: "#38bdf8"
+            },
+            {
+              num: "3",
+              title: "Run Installer Command",
+              desc: "Copy-paste the pre-configured PowerShell or Bash one-liner script onto your server to install and connect the agent.",
+              icon: "⚡",
+              color: "#a78bfa"
+            }
+          ].map((step, idx) => (
+            <div key={step.num} style={{
+              background: "rgba(30, 41, 59, 0.45)",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              borderRadius: "20px",
+              padding: "30px",
+              textAlign: "left",
+              position: "relative",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.15)",
+            }}>
+              <div style={{
+                fontSize: "48px",
+                fontWeight: "900",
+                color: "rgba(255, 255, 255, 0.03)",
+                position: "absolute",
+                top: "15px",
+                right: "20px",
+                lineHeight: 1
+              }}>
+                0{step.num}
+              </div>
+              <div style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "12px",
+                background: `${step.color}15`,
+                border: `1px solid ${step.color}30`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "22px",
+                marginBottom: "20px"
+              }}>
+                {step.icon}
+              </div>
+              <h3 style={{ fontSize: "20px", fontWeight: "700", color: "white", marginBottom: "10px" }}>{step.title}</h3>
+              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: "1.6", margin: 0 }}>{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ═══ FEATURES ═══ */}
       <section id="features" className="features-section">
         <div className="section-header">
