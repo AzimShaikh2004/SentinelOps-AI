@@ -739,7 +739,7 @@ const Landing = () => {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 SentinelOps AI. Full-stack infrastructure intelligence.</span>
+          <span>© 2026 SentinelOps AI. Built by Mohammed Azim Ajaz Shaikh. Full-stack infrastructure intelligence.</span>
           <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <span style={{ fontSize: "10px" }}>⚡</span>
             Powered by Gemini AI
