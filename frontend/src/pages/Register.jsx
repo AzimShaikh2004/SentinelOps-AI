@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import ParticleBackground from "../components/ParticleBackground";
+import { API_BASE_URL } from "../config";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -15,7 +16,7 @@ const Register = () => {
     setError("");
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/auth/register", { name, email, password });
+      await axios.post(`${API_BASE_URL}/api/auth/register`, { name, email, password });
       window.location.href = "/login";
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");

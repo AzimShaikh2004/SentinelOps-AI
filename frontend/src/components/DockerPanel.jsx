@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../config";
 
 const DockerPanel = ({ containers }) => {
   const [actionLoading, setActionLoading] = useState(null);
@@ -15,7 +16,7 @@ const DockerPanel = ({ containers }) => {
     setActionLoading(containerId);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/monitor/containers/${containerId}/${action}`, {
+      const response = await fetch(`${API_BASE_URL}/api/monitor/containers/${containerId}/${action}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -43,7 +44,7 @@ const DockerPanel = ({ containers }) => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/monitor/containers/${containerId}/logs`, {
+      const response = await fetch(`${API_BASE_URL}/api/monitor/containers/${containerId}/logs`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import TerminalConsole from "./TerminalConsole";
+import { API_BASE_URL } from "../config";
 
 const AIAnomalyPanel = ({
   anomalies,
@@ -21,7 +22,7 @@ const AIAnomalyPanel = ({
     setRemediationData(null);
 
     try {
-      const response = await fetch("http://localhost:5000/api/metrics/ai-remediation", {
+      const response = await fetch(`${API_BASE_URL}/api/metrics/ai-remediation`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

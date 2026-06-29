@@ -15,6 +15,7 @@ import AIIncidentSummary from "../components/AIIncidentSummary";
 import { jwtDecode } from "jwt-decode";
 import AIAnalysisCard from "../components/AIAnalysisCard";
 import AutopilotConsole from "../components/AutopilotConsole";
+import { API_BASE_URL } from "../config";
 
 const Dashboard = () => {
   const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
@@ -58,7 +59,7 @@ const Dashboard = () => {
 
   const fetchIntegrations = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/integrations", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/integrations`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       const data = await response.json();
@@ -71,7 +72,7 @@ const Dashboard = () => {
 
   const updateIntegrations = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/integrations", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/integrations`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: JSON.stringify({ slackWebhookUrl: slackUrl, discordWebhookUrl: discordUrl }),
@@ -89,7 +90,7 @@ const Dashboard = () => {
     setChatMessage("");
     setChatLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/metrics/ai-chat", {
+      const response = await fetch(`${API_BASE_URL}/api/metrics/ai-chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: JSON.stringify({ message: chatMessage, history: [...chatHistory, userMsg] }),
@@ -104,7 +105,7 @@ const Dashboard = () => {
   const handleManualDiagnostic = async () => {
     setAiLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/metrics/ai-analyze", {
+      const response = await fetch(`${API_BASE_URL}/api/metrics/ai-analyze`, {
         method: "POST",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
@@ -117,7 +118,7 @@ const Dashboard = () => {
 
   const fetchApiKeys = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/api-keys", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/api-keys`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       const data = await response.json();
@@ -127,7 +128,7 @@ const Dashboard = () => {
 
   const generateApiKey = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/api-keys", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/api-keys`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: JSON.stringify({ description: newKeyDesc }),
@@ -140,7 +141,7 @@ const Dashboard = () => {
 
   const deleteApiKey = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/api-keys/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/api-keys/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
@@ -153,14 +154,14 @@ const Dashboard = () => {
     fetchApiKeys();
     fetchIntegrations();
     const fetchIncidents = async () => {
-      try { const response = await fetch("http://localhost:5000/api/incidents"); const data = await response.json(); setIncidents(data); }
+      try { const response = await fetch(`${API_BASE_URL}/api/incidents`); const data = await response.json(); setIncidents(data); }
       catch (error) { console.log(error); }
     };
     fetchIncidents();
     const incidentInterval = setInterval(fetchIncidents, 5000);
     const fetchHistory = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/metrics/history");
+        const response = await fetch(`${API_BASE_URL}/api/metrics/history`);
         const data = await response.json();
         const formatted = data.reverse().map((metric) => ({ cpuUsage: metric.cpuUsage, time: new Date(metric.createdAt).toLocaleTimeString() }));
         setHistoricalMetrics(formatted);
@@ -354,7 +355,7 @@ const Dashboard = () => {
             <NotificationCenter notifications={notifications} setNotifications={setNotifications} />
 
             <ActionButton icon="📄" label="Export" onClick={() =>
-              window.open(`http://localhost:5000/api/reports/export-pdf?token=${localStorage.getItem("token")}`, "_blank")
+              window.open(`${API_BASE_URL}/api/reports/export-pdf?token=${localStorage.getItem("token")}`, "_blank")
             } />
             <ActionButton icon="🔑" label="API Keys" onClick={() => setShowApiKeyModal(true)} />
             <ActionButton icon="⚙" label="Settings" onClick={() => setShowSettingsModal(true)} />

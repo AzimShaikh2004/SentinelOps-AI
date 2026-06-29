@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import socket from "../socket/socket";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../config";
 
 const AutopilotConsole = ({ isAutopilotEnabled, onToggleAutopilot }) => {
   const [activeEvent, setActiveEvent] = useState(null);
@@ -12,7 +13,7 @@ const AutopilotConsole = ({ isAutopilotEnabled, onToggleAutopilot }) => {
     setHistoryLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/monitor/autopilot/events", {
+      const response = await fetch(`${API_BASE_URL}/api/monitor/autopilot/events`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

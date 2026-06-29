@@ -14,8 +14,10 @@ const si = require(
 
 const os = require("os");
 
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
+
 const socket = io(
-  "http://localhost:5000",
+  BACKEND_URL,
   {
     auth: {
       apiKey: process.env.API_KEY || "sentinel_placeholder_key",

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import ParticleBackground from "../components/ParticleBackground";
+import { API_BASE_URL } from "../config";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,7 +15,7 @@ const Login = () => {
     setError("");
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
       localStorage.setItem("token", response.data.token);
       window.location.href = "/dashboard";
     } catch (err) {
