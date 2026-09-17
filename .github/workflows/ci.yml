@@ -1,0 +1,81 @@
+name: SentinelOps CI
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    frontend-checks:
+        name: Frontend Checks
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 22
+                  cache: npm
+                  cache-dependency-path: frontend/package-lock.json
+
+            - name: Install frontend dependencies
+              working-directory: frontend
+              run: npm ci
+
+            - name: Lint frontend
+              working-directory: frontend
+              run: npm run lint
+
+            - name: Build frontend
+              working-directory: frontend
+              run: npm run build
+
+    backend-checks:
+        name: Backend Checks
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 22
+                  cache: npm
+                  cache-dependency-path: backend/package-lock.json
+
+            - name: Install backend dependencies
+              working-directory: backend
+              run: npm ci
+
+            - name: Check backend syntax
+              run: node --check backend/src/server.js
+
+    docker-build:
+        name: Docker Build
+        runs-on: ubuntu-latest
+
+        needs:
+            - frontend-checks
+            - backend-checks
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Build backend Docker image
+              run: docker build -t sentinelops-backend:ci ./backend
+
+            - name: Build frontend Docker image
+              run: docker build -t sentinelops-frontend:ci --build-arg VITE_API_BASE_URL=http://localhost:5000 ./frontend
