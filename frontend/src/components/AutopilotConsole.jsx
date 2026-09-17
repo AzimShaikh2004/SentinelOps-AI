@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import socket from "../socket/socket";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../config";
@@ -9,27 +9,27 @@ const AutopilotConsole = ({ isAutopilotEnabled, onToggleAutopilot }) => {
   const [expandedEventId, setExpandedEventId] = useState(null);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  const fetchHistory = async () => {
-    setHistoryLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/api/monitor/autopilot/events`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (response.ok && Array.isArray(data)) {
-        setHistoryEvents(data);
-      }
-    } catch (err) {
-      console.log("Failed to fetch autopilot history:", err);
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchHistory = async () => {
+      setHistoryLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE_URL}/api/monitor/autopilot/events`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok && Array.isArray(data)) {
+          setHistoryEvents(data);
+        }
+      } catch (err) {
+        console.log("Failed to fetch autopilot history:", err);
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+
     fetchHistory();
 
     const handleEventUpdate = (event) => {

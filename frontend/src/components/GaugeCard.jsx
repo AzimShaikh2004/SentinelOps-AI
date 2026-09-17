@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const GaugeCard = ({ title, value, color, icon }) => {
   const [displayValue, setDisplayValue] = useState(0);
+  const prevValue = useRef(0);
 
   useEffect(() => {
     // Smooth count-up animation
     const duration = 600;
-    const start = displayValue;
+    const start = prevValue.current;
     const diff = value - start;
     const startTime = performance.now();
 
@@ -18,6 +19,7 @@ const GaugeCard = ({ title, value, color, icon }) => {
       if (progress < 1) requestAnimationFrame(animate);
     };
     requestAnimationFrame(animate);
+    prevValue.current = value;
   }, [value]);
 
   const size = 160;

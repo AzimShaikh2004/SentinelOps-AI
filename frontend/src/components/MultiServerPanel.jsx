@@ -130,10 +130,10 @@ const MultiServerPanel = ({ servers }) => {
                   }}>
                     {server.memory}%
                   </td>
-                  <td style={{ padding: "14px 20px", fontSize: "13px", color: "#94a3b8", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }}>
+                  <td style={{ padding: "14px 20px", color: "#94a3b8", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }}>
                     {server.download} MB/s
                   </td>
-                  <td style={{ padding: "14px 20px", fontSize: "13px", color: "#94a3b8", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }}>
+                  <td style={{ padding: "14px 20px", color: "#94a3b8", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }}>
                     {server.upload} MB/s
                   </td>
                   <td style={{ padding: "14px 20px", fontSize: "12px", color: "#475569", fontFamily: "'JetBrains Mono', monospace" }}>

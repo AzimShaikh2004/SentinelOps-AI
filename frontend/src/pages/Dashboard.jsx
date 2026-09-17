@@ -12,7 +12,6 @@ import IncidentHistory from "../components/IncidentHistory";
 import NotificationCenter from "../components/NotificationCenter";
 import HistoricalCPUChart from "../components/HistoricalCPUChart";
 import AIIncidentSummary from "../components/AIIncidentSummary";
-import { jwtDecode } from "jwt-decode";
 import AIAnalysisCard from "../components/AIAnalysisCard";
 import AutopilotConsole from "../components/AutopilotConsole";
 import { API_BASE_URL } from "../config";
@@ -25,7 +24,7 @@ const Dashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [chartData, setChartData] = useState([]);
   const [networkChartData, setNetworkChartData] = useState([]);
-  const [alerts, setAlerts] = useState([]);
+  const [, setAlerts] = useState([]);
   const [logs, setLogs] = useState([]);
   const [anomalies, setAnomalies] = useState([]);
   const [containers, setContainers] = useState([]);
@@ -33,7 +32,7 @@ const Dashboard = () => {
   const [incidents, setIncidents] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [historicalMetrics, setHistoricalMetrics] = useState([]);
-  const [userRole, setUserRole] = useState("");
+
   const shownNotifications = useRef({});
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -57,19 +56,6 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const fetchIntegrations = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/integrations`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setSlackUrl(data.slackWebhookUrl || "");
-        setDiscordUrl(data.discordWebhookUrl || "");
-      }
-    } catch (error) { console.log("Failed to fetch integrations:", error); }
-  };
-
   const updateIntegrations = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/integrations`, {
@@ -79,7 +65,7 @@ const Dashboard = () => {
       });
       if (response.ok) { toast.success("Integrations updated!"); setShowSettingsModal(false); }
       else { const data = await response.json(); toast.error(data.message || "Failed"); }
-    } catch (error) { toast.error("Failed to update integrations"); }
+    } catch { toast.error("Failed to update integrations"); }
   };
 
   const handleSendMessage = async (e) => {
@@ -98,7 +84,7 @@ const Dashboard = () => {
       const data = await response.json();
       if (response.ok) setChatHistory((prev) => [...prev, { sender: "bot", text: data.reply }]);
       else toast.error(data.message || "Failed");
-    } catch (error) { toast.error("Failed to connect to SRE chat"); }
+    } catch { toast.error("Failed to connect to SRE chat"); }
     finally { setChatLoading(false); }
   };
 
@@ -112,7 +98,7 @@ const Dashboard = () => {
       const data = await response.json();
       if (response.ok) { setAiAnalysis(data); toast.success("AI Diagnostic complete!"); }
       else toast.error(data.message || "Failed");
-    } catch (error) { toast.error("Failed to run diagnostics"); }
+    } catch { toast.error("Failed to run diagnostics"); }
     finally { setAiLoading(false); }
   };
 
@@ -136,7 +122,7 @@ const Dashboard = () => {
       const data = await response.json();
       if (response.ok) { toast.success("API Key generated!"); setNewKeyDesc(""); fetchApiKeys(); }
       else toast.error(data.message || "Failed");
-    } catch (error) { toast.error("Failed to generate key"); }
+    } catch { toast.error("Failed to generate key"); }
   };
 
   const deleteApiKey = async (id) => {
@@ -147,12 +133,33 @@ const Dashboard = () => {
       });
       if (response.ok) { toast.success("API Key revoked!"); fetchApiKeys(); }
       else { const data = await response.json(); toast.error(data.message || "Failed"); }
-    } catch (error) { toast.error("Failed to revoke key"); }
+    } catch { toast.error("Failed to revoke key"); }
   };
 
   useEffect(() => {
-    fetchApiKeys();
-    fetchIntegrations();
+    const initApiKeys = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/api-keys`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await response.json();
+        if (Array.isArray(data)) setApiKeys(data);
+      } catch (error) { console.log("Failed to fetch API keys:", error); }
+    };
+    const initIntegrations = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/integrations`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setSlackUrl(data.slackWebhookUrl || "");
+          setDiscordUrl(data.discordWebhookUrl || "");
+        }
+      } catch (error) { console.log("Failed to fetch integrations:", error); }
+    };
+    initApiKeys();
+    initIntegrations();
     const fetchIncidents = async () => {
       try { const response = await fetch(`${API_BASE_URL}/api/incidents`); const data = await response.json(); setIncidents(data); }
       catch (error) { console.log(error); }

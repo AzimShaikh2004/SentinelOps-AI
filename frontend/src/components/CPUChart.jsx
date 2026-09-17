@@ -9,6 +9,31 @@ import {
   ReferenceLine,
 } from "recharts";
 
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div style={{
+      background: "rgba(15, 23, 42, 0.95)",
+      backdropFilter: "blur(16px)",
+      border: "1px solid rgba(255, 255, 255, 0.08)",
+      borderRadius: "14px",
+      padding: "14px 18px",
+      boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4)",
+    }}>
+      <p style={{ color: "#64748b", fontSize: "11px", fontWeight: "700", marginBottom: "8px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+        {label}
+      </p>
+      {payload.map((entry, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: entry.color, boxShadow: `0 0 8px ${entry.color}60` }} />
+          <span style={{ color: "#94a3b8", fontSize: "12px", fontWeight: "600" }}>{entry.name}:</span>
+          <span style={{ color: "#f1f5f9", fontSize: "13px", fontWeight: "700" }}>{entry.value}%</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const CPUChart = ({ data, forecast }) => {
   const mergedData = data.map(d => ({ ...d, forecastUsage: null }));
 
@@ -24,31 +49,6 @@ const CPUChart = ({ data, forecast }) => {
       });
     });
   }
-
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (!active || !payload || !payload.length) return null;
-    return (
-      <div style={{
-        background: "rgba(15, 23, 42, 0.95)",
-        backdropFilter: "blur(16px)",
-        border: "1px solid rgba(255, 255, 255, 0.08)",
-        borderRadius: "14px",
-        padding: "14px 18px",
-        boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4)",
-      }}>
-        <p style={{ color: "#64748b", fontSize: "11px", fontWeight: "700", marginBottom: "8px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          {label}
-        </p>
-        {payload.map((entry, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: entry.color, boxShadow: `0 0 8px ${entry.color}60` }} />
-            <span style={{ color: "#94a3b8", fontSize: "12px", fontWeight: "600" }}>{entry.name}:</span>
-            <span style={{ color: "#f1f5f9", fontSize: "13px", fontWeight: "700" }}>{entry.value}%</span>
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   return (
     <div className="glass-panel" style={{ padding: "24px", marginTop: "30px" }}>

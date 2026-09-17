@@ -3,36 +3,6 @@ import { useNavigate } from "react-router-dom";
 import ParticleBackground from "../components/ParticleBackground";
 import "../styles/landing.css";
 
-/* ─── Animated counter hook ─── */
-const useCountUp = (end, duration = 2000, startOnView = true) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const hasStarted = useRef(false);
-
-  useEffect(() => {
-    if (!startOnView) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasStarted.current) {
-          hasStarted.current = true;
-          const start = performance.now();
-          const tick = (now) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.floor(eased * end));
-            if (progress < 1) requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [end, duration, startOnView]);
-
-  return [count, ref];
-};
 
 /* ─── Scroll reveal hook ─── */
 const useReveal = (delay = 0) => {
@@ -150,19 +120,21 @@ const FeatureCard = ({ svgIcon, title, description, gradient, glowColor, delay }
   );
 };
 
+/* ─── Terminal lines constant ─── */
+const terminalLines = [
+  { text: "$ sentinel monitor --status", color: "#38bdf8", delay: 0 },
+  { text: "  ● System Health: OPTIMAL", color: "#06d6a0", delay: 600 },
+  { text: "  ● CPU: 23.4%  Memory: 61.2%  Uptime: 14.2h", color: "#94a3b8", delay: 1200 },
+  { text: "  ● Anomalies Detected: 0  Agent: Connected", color: "#94a3b8", delay: 1800 },
+  { text: "", color: "#94a3b8", delay: 2200 },
+  { text: "$ sentinel autopilot --enable", color: "#38bdf8", delay: 2600 },
+  { text: "  ✓ SentinelSRE Autopilot: ACTIVE", color: "#06d6a0", delay: 3200 },
+  { text: "  ✓ Self-healing engaged. AI diagnosing anomalies...", color: "#a78bfa", delay: 3800 },
+];
+
 /* ─── Floating Terminal Preview ─── */
 const TerminalPreview = () => {
   const [lines, setLines] = useState([]);
-  const terminalLines = [
-    { text: "$ sentinel monitor --status", color: "#38bdf8", delay: 0 },
-    { text: "  ● System Health: OPTIMAL", color: "#06d6a0", delay: 600 },
-    { text: "  ● CPU: 23.4%  Memory: 61.2%  Uptime: 14.2h", color: "#94a3b8", delay: 1200 },
-    { text: "  ● Anomalies Detected: 0  Agent: Connected", color: "#94a3b8", delay: 1800 },
-    { text: "", color: "#94a3b8", delay: 2200 },
-    { text: "$ sentinel autopilot --enable", color: "#38bdf8", delay: 2600 },
-    { text: "  ✓ SentinelSRE Autopilot: ACTIVE", color: "#06d6a0", delay: 3200 },
-    { text: "  ✓ Self-healing engaged. AI diagnosing anomalies...", color: "#a78bfa", delay: 3800 },
-  ];
 
   useEffect(() => {
     terminalLines.forEach((line) => {
@@ -198,6 +170,32 @@ const TerminalPreview = () => {
         ))}
         <span className="terminal-cursor">█</span>
       </div>
+    </div>
+  );
+};
+
+/* ─── How It Works step card (extracted to allow useReveal at top level) ─── */
+const HiwStepCard = ({ item, idx, delay }) => {
+  const [ref, visible] = useReveal(delay);
+  return (
+    <div ref={ref} className={`hiw-step ${visible ? "revealed" : ""}`}>
+      <div className="hiw-step-number">{item.step}</div>
+      <div className="hiw-step-icon">{item.icon}</div>
+      <h3 className="hiw-step-title">{item.title}</h3>
+      <p className="hiw-step-desc">{item.desc}</p>
+      {idx < 2 && <div className="hiw-connector" />}
+    </div>
+  );
+};
+
+/* ─── Feature list card (extracted to allow useReveal at top level) ─── */
+const FeatureListCard = ({ item, delay }) => {
+  const [ref, visible] = useReveal(delay);
+  return (
+    <div ref={ref} className={`testimonial-card ${visible ? "revealed" : ""}`}>
+      <div className="testimonial-quote" style={{ fontSize: "28px" }}>{item.icon}</div>
+      <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "8px" }}>{item.title}</h3>
+      <p className="testimonial-text" style={{ fontStyle: "normal" }}>{item.desc}</p>
     </div>
   );
 };
@@ -433,7 +431,7 @@ const Landing = () => {
               icon: "⚡",
               color: "#a78bfa"
             }
-          ].map((step, idx) => (
+          ].map((step) => (
             <div key={step.num} style={{
               background: "rgba(30, 41, 59, 0.45)",
               border: "1px solid rgba(255, 255, 255, 0.06)",
@@ -601,18 +599,9 @@ const Landing = () => {
               title: "Autopilot Self-Heals",
               desc: "Gemini AI generates a diagnosis command, executes it on the agent, designs a remediation script, applies the fix, and verifies recovery — 5 autonomous phases.",
             },
-          ].map((item, idx) => {
-            const [ref, visible] = useReveal(idx * 150);
-            return (
-              <div key={item.step} ref={ref} className={`hiw-step ${visible ? "revealed" : ""}`}>
-                <div className="hiw-step-number">{item.step}</div>
-                <div className="hiw-step-icon">{item.icon}</div>
-                <h3 className="hiw-step-title">{item.title}</h3>
-                <p className="hiw-step-desc">{item.desc}</p>
-                {idx < 2 && <div className="hiw-connector" />}
-              </div>
-            );
-          })}
+          ].map((item, idx) => (
+            <HiwStepCard key={item.step} item={item} idx={idx} delay={idx * 150} />
+          ))}
         </div>
       </section>
 
@@ -662,16 +651,9 @@ const Landing = () => {
               title: "Historical Metrics & Incidents",
               desc: "All metrics are persisted to MongoDB with 1-minute granularity. Incident history with timeline view and AI-powered incident summaries.",
             },
-          ].map((item, idx) => {
-            const [ref, visible] = useReveal(idx * 80);
-            return (
-              <div key={item.title} ref={ref} className={`testimonial-card ${visible ? "revealed" : ""}`}>
-                <div className="testimonial-quote" style={{ fontSize: "28px" }}>{item.icon}</div>
-                <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "8px" }}>{item.title}</h3>
-                <p className="testimonial-text" style={{ fontStyle: "normal" }}>{item.desc}</p>
-              </div>
-            );
-          })}
+          ].map((item, idx) => (
+            <FeatureListCard key={item.title} item={item} delay={idx * 80} />
+          ))}
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../config";
 
@@ -28,7 +28,7 @@ const DockerPanel = ({ containers }) => {
       } else {
         toast.error(data.message || `Failed to ${action} container.`);
       }
-    } catch (error) {
+    } catch {
       toast.error(`Error: Failed to ${action} container.`);
     } finally {
       setActionLoading(null);
@@ -55,7 +55,7 @@ const DockerPanel = ({ containers }) => {
       } else {
         toast.error(data.message || "Failed to fetch container logs.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error connecting to server to fetch logs.");
     } finally {
       setLogsLoading(false);

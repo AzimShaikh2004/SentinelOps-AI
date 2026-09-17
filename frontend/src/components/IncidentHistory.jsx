@@ -122,7 +122,6 @@ const IncidentHistory = ({ incidents }) => {
                   </td>
                   <td style={{
                     padding: "14px 20px",
-                    fontSize: "13px",
                     color: "#64748b",
                     fontFamily: "'JetBrains Mono', monospace",
                     fontSize: "12px",

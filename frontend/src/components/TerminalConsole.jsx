@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import socket from "../socket/socket";
-import { toast } from "react-toastify";
 
 const TerminalConsole = ({ command: initialCommand, serverId, onClose }) => {
   const [command, setCommand] = useState(initialCommand || "");

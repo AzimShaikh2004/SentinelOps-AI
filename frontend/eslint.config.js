@@ -18,4 +18,10 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    files: ['e2e-test-simulation.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])

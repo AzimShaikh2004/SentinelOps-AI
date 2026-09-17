@@ -43,7 +43,7 @@ const AIAnomalyPanel = ({
         toast.error(data.message || "Failed to fetch AI remediation steps");
         setShowRemediation(false);
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error while fetching SRE remediation");
       setShowRemediation(false);
     } finally {
