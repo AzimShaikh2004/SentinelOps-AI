@@ -1,32 +1,23 @@
-const mongoose =
-  require("mongoose");
+const mongoose = require("mongoose");
 
-const systemMetricSchema =
-  new mongoose.Schema(
-    {
-      cpuUsage: Number,
+const systemMetricSchema = new mongoose.Schema(
+  {
+    cpuUsage: Number,
+    memoryUsage: Number,
+    freeMemory: Number,
+    cpuCores: Number,
+    downloadSpeed: Number,
+    uploadSpeed: Number,
+    diskUsage: Number,
+    hostname: String,
+    uptime: Number,
+  },
+  {
+    timestamps: true,
+  }
+);
 
-      memoryUsage: Number,
+// Performance index for time-series queries
+systemMetricSchema.index({ createdAt: -1 });
 
-      freeMemory: Number,
-
-      cpuCores: Number,
-
-      downloadSpeed: Number,
-
-      uploadSpeed: Number,
-
-      hostname: String,
-
-      uptime: Number,
-    },
-    {
-      timestamps: true,
-    }
-  );
-
-module.exports =
-  mongoose.model(
-    "SystemMetric",
-    systemMetricSchema
-  );
+module.exports = mongoose.model("SystemMetric", systemMetricSchema);

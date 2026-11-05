@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const rateLimit = require("express-rate-limit");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -14,90 +15,35 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protectedRoutes");
 const monitorRoutes = require("./routes/monitorRoutes");
-const SystemMetric =
-  require(
-    "./models/SystemMetric"
-  );
+const SystemMetric = require("./models/SystemMetric");
 const ApiKey = require("./models/ApiKey");
 let lastMetricSave = 0;  
 
-
-const {
-  addLog,
-  getLogs,
-} = require("./utils/logger");
-
-const {
-  detectAnomalies,
-} = require(
-  "./utils/anomalyDetector"
-);
-
-const {
-  getDockerContainers,
-} = require(
-  "./services/dockerService"
-);
-
-const {
-  getSystemMetrics,
-} = require(
-  "./services/monitoringService"
-);
-
-const {
-  analyzeMetrics,
-} = require(
-  "./utils/aiAnalyzer"
-);
-
-const {
-  forecastSeries,
-} = require(
-  "./utils/forecaster"
-);
-
-const {
-  toggleAutopilot,
-  runSelfHealingLoop,
-} = require(
-  "./controllers/autopilotController"
-);
-
-const Incident = require(
-  "./models/Incident"
-);
+const { addLog, getLogs } = require("./utils/logger");
+const { detectAnomalies } = require("./utils/anomalyDetector");
+const { getDockerContainers } = require("./services/dockerService");
+const { getSystemMetrics } = require("./services/monitoringService");
+const { analyzeMetrics } = require("./utils/aiAnalyzer");
+const { forecastSeries } = require("./utils/forecaster");
+const { toggleAutopilot, runSelfHealingLoop } = require("./controllers/autopilotController");
+const Incident = require("./models/Incident");
 const { sendAlert } = require("./utils/notifier");
 
-
-const incidentRoutes =
-  require(
-    "./routes/incidentRoutes"
-  );
-
-const metricsRoutes =
-  require(
-    "./routes/metricsRoutes"
-  );
-
-const reportRoutes =
-  require(
-    "./routes/reportRoutes"
-  );  
-
-
-
+const incidentRoutes = require("./routes/incidentRoutes");
+const metricsRoutes = require("./routes/metricsRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 connectDB();
 
 const app = express();
+const server = http.createServer(app);
 
-const server =
-  http.createServer(app);
+const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: allowedOrigin,
+    credentials: true,
   },
 });
 
@@ -127,47 +73,51 @@ io.use(async (socket, next) => {
   }
 });
 
-
-app.use(cors());
+// Security & utility middlewares
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true,
+}));
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 
-app.use(
-  "/api/auth",
-  authRoutes
-);
+// Rate limiter for authentication endpoints to prevent brute-force attacks
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // max 20 requests per window
+  message: { message: "Too many authentication requests. Please try again after 15 minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-app.use(
-  "/api/protected",
-  protectedRoutes
-);
-
-app.use(
-  "/api/monitor",
-  monitorRoutes
-);
-
-app.use(
-  "/api/incidents",
-  incidentRoutes
-);
-
-app.use(
-  "/api/reports",
-  reportRoutes
-);
-
-app.use(
-  "/api/metrics",
-  metricsRoutes
-);
+app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/protected", protectedRoutes);
+app.use("/api/monitor", monitorRoutes);
+app.use("/api/incidents", incidentRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/metrics", metricsRoutes);
 
 app.get("/", (req, res) => {
   res.json({
-    message:
-      "SentinelOps AI Backend Running Successfully",
+    message: "SentinelOps AI Backend Running Successfully",
   });
+});
+
+app.get("/health", async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const dbState = mongoose.connection.readyState;
+    const states = { 0: "disconnected", 1: "connected", 2: "connecting", 3: "disconnecting" };
+    res.status(dbState === 1 ? 200 : 503).json({
+      status: dbState === 1 ? "healthy" : "unhealthy",
+      database: states[dbState] || "unknown",
+      uptime: `${process.uptime().toFixed(0)}s`,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(503).json({ status: "unhealthy", error: error.message });
+  }
 });
 
 let connectedServers = [];
@@ -205,7 +155,7 @@ const pollSystemMetrics = async () => {
     latestMetrics = {
       ...metrics,
       cpuForecast,
-      memForecast
+      memForecast,
     };
     latestContainers = containers;
     latestAnomalies = anomalies;
@@ -229,6 +179,7 @@ const pollSystemMetrics = async () => {
           cpuCores: metrics.cpuCores,
           downloadSpeed: parseFloat(metrics.downloadSpeed),
           uploadSpeed: parseFloat(metrics.uploadSpeed),
+          diskUsage: parseFloat(metrics.diskUsagePercentage) || 0,
           hostname: metrics.hostname,
           uptime: metrics.uptime,
         });
@@ -259,7 +210,6 @@ const pollSystemMetrics = async () => {
           });
           sendAlert(anomaly);
         }
-
       }
     }
   } catch (error) {
@@ -380,75 +330,66 @@ io.on("connection", (socket) => {
     agentSocket.on("command-close", onClose);
   });
 
-  socket.on(
-    "agent-metrics",
-    (data) => {
-      if (socket.clientType !== "agent") {
-        console.log(`Unauthorized metrics submission from client ${socket.id}`);
-        return;
-      }
-      
-      socket.serverId = data.serverId; // Map server ID to agent socket
-
-      const existingServer =
-        connectedServers.find(
-          (server) =>
-            server.serverId ===
-            data.serverId
-        );
-
-      if (existingServer) {
-        Object.assign(
-          existingServer,
-          {
-            ...data,
-            status: "ONLINE",
-            lastSeen: Date.now(),
-          }
-        );
-      } else {
-        connectedServers.push({
-          ...data,
-          status: "ONLINE",
-          lastSeen: Date.now(),
-        });
-      }
-
-      io.to("dashboard-clients").emit(
-        "multi-server-data",
-        connectedServers
-      );
+  socket.on("agent-metrics", (data) => {
+    if (socket.clientType !== "agent") {
+      console.log(`Unauthorized metrics submission from client ${socket.id}`);
+      return;
     }
-  );
+    
+    socket.serverId = data.serverId; // Map server ID to agent socket
 
-  socket.on(
-    "disconnect",
-    () => {
-      console.log(
-        `Client disconnected: ${socket.id}`
-      );
+    const existingServer = connectedServers.find(
+      (server) => server.serverId === data.serverId
+    );
 
-      addLog(
-        "SOCKET",
-        `Client disconnected: ${socket.id}`
-      );
+    if (existingServer) {
+      Object.assign(existingServer, {
+        ...data,
+        status: "ONLINE",
+        lastSeen: Date.now(),
+      });
+    } else {
+      connectedServers.push({
+        ...data,
+        status: "ONLINE",
+        lastSeen: Date.now(),
+      });
     }
-  );
+
+    io.to("dashboard-clients").emit("multi-server-data", connectedServers);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Client disconnected: ${socket.id}`);
+    addLog("SOCKET", `Client disconnected: ${socket.id}`);
+  });
 });
 
-const PORT =
-
-  process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-  console.log(
-    `Server running on port ${PORT}`
-  );
-
-  addLog(
-    "INFO",
-    `Server started on port ${PORT}`
-  );
+  console.log(`Server running on port ${PORT}`);
+  addLog("INFO", `Server started on port ${PORT}`);
 });
 
-// Trigger restart
+// Graceful shutdown handler
+const gracefulShutdown = (signal) => {
+  console.log(`\n[Server] ${signal} received. Shutting down gracefully...`);
+  server.close(() => {
+    console.log("[Server] HTTP server closed.");
+    const mongoose = require("mongoose");
+    mongoose.connection.close(false).then(() => {
+      console.log("[Server] MongoDB connection closed.");
+      process.exit(0);
+    });
+  });
+
+  // Force exit after 10 seconds if graceful shutdown hangs
+  setTimeout(() => {
+    console.error("[Server] Forced shutdown after timeout.");
+    process.exit(1);
+  }, 10000);
+};
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));

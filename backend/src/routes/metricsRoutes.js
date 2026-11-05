@@ -1,41 +1,34 @@
-const express =
-  require("express");
+const express = require("express");
 
-const router =
-  express.Router();
+const router = express.Router();
 
-const SystemMetric =
-  require(
-    "../models/SystemMetric"
-  );
+const SystemMetric = require("../models/SystemMetric");
 
 const { protect } = require("../middleware/authMiddleware");
 const { getSystemMetrics } = require("../services/monitoringService");
 const { detectAnomalies } = require("../utils/anomalyDetector");
 const { analyzeMetrics } = require("../utils/aiAnalyzer");
+const { generateContentWithFallback } = require("../utils/geminiHelper");
 
 router.get(
   "/history",
+  protect,
   async (req, res) => {
     try {
-      const metrics =
-        await SystemMetric.find()
-          .sort({
-            createdAt: -1,
-          })
-          .limit(1440);
+      const metrics = await SystemMetric.find()
+        .sort({
+          createdAt: -1,
+        })
+        .limit(1440);
 
       res.json(metrics);
     } catch (error) {
       res.status(500).json({
-        message:
-          "Failed to fetch metrics",
+        message: "Failed to fetch metrics",
       });
     }
   }
 );
-
-const { generateContentWithFallback } = require("../utils/geminiHelper");
 
 router.post(
   "/ai-analyze",
@@ -72,7 +65,6 @@ router.post(
 
       metrics = await getSystemMetrics();
       anomalies = await detectAnomalies(metrics);
-
 
       const contextPrompt = `
 You are "SentinelOps SRE", an elite virtual Site Reliability Engineer. You are helping the system administrator debug and manage their cluster.
@@ -194,4 +186,3 @@ router.post(
 );
 
 module.exports = router;
-

@@ -4,15 +4,10 @@ try {
   // dotenv not installed, fallback to process.env directly
 }
 
-const io = require(
-  "socket.io-client"
-);
-
-const si = require(
-  "systeminformation"
-);
-
+const io = require("socket.io-client");
+const si = require("systeminformation");
 const os = require("os");
+const { exec } = require("child_process");
 
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
 
@@ -25,72 +20,62 @@ const socket = io(
   }
 );
 
+const sendMetrics = async () => {
+  const cpu = await si.currentLoad();
+  const memory = await si.mem();
+  const network = await si.networkStats();
 
-const sendMetrics =
-  async () => {
-    const cpu =
-      await si.currentLoad();
+  socket.emit(
+    "agent-metrics",
+    {
+      serverId: os.hostname(),
+      cpu: cpu.currentLoad.toFixed(1),
+      memory: ((memory.used / memory.total) * 100).toFixed(1),
+      download: (network[0].rx_sec / 1024 / 1024).toFixed(2),
+      upload: (network[0].tx_sec / 1024 / 1024).toFixed(2),
+      timestamp: new Date().toLocaleTimeString(),
+      status:
+        cpu.currentLoad > 80 || (memory.used / memory.total) * 100 > 90
+          ? "CRITICAL"
+          : cpu.currentLoad > 50
+          ? "WARNING"
+          : "ONLINE",
+    }
+  );
+};
 
-    const memory =
-      await si.mem();
+// Command safety allowlist — only permit diagnostic/read-only commands
+const SAFE_COMMAND_PATTERNS = [
+  /^ps\s/i, /^top\s/i, /^htop/i, /^free\s/i, /^df\s/i, /^uptime/i,
+  /^cat\s+\/proc\//i, /^netstat\s/i, /^ss\s/i, /^lsof\s/i, /^du\s/i,
+  /^whoami/i, /^hostname/i, /^uname\s/i, /^systemctl\s+status/i,
+  /^docker\s+(ps|stats|inspect|logs)/i, /^journalctl\s/i,
+  /^powershell\s.*Get-Process/i, /^powershell\s.*Get-Service/i,
+  /^powershell\s.*Get-NetTCPConnection/i, /^powershell\s.*Get-Counter/i,
+  /^powershell\s.*Get-WmiObject/i, /^powershell\s.*\[System\.GC\]/i,
+  /^powershell\s.*Get-EventLog/i, /^systeminfo/i, /^tasklist/i,
+  /^netstat/i, /^wmic\s/i,
+  /^sync\s/i, /^echo\s/i, /^head\s/i, /^tail\s/i, /^grep\s/i,
+];
 
-    const network =
-      await si.networkStats();
-
-    socket.emit(
-      "agent-metrics",
-      
-      {
-        serverId:
-          os.hostname(),
-
-        cpu:
-          cpu.currentLoad.toFixed(
-            1
-          ),
-
-        memory:
-          (
-            (memory.used /
-              memory.total) *
-            100
-          ).toFixed(1),
-
-        download:
-          (
-            network[0].rx_sec /
-            1024 /
-            1024
-          ).toFixed(2),
-
-        upload:
-          (
-            network[0].tx_sec /
-            1024 /
-            1024
-          ).toFixed(2),
-
-        timestamp:
-          new Date().toLocaleTimeString(),
-
-        status:
-  cpu.currentLoad > 80 ||
-  (memory.used / memory.total) *
-    100 >
-    90
-    ? "CRITICAL"
-    : cpu.currentLoad > 50
-    ? "WARNING"
-    : "ONLINE",
-      }
-    );
-  };
-
-const { exec } = require("child_process");
+const isCommandSafe = (command) => {
+  return SAFE_COMMAND_PATTERNS.some(pattern => pattern.test(command.trim()));
+};
 
 socket.on("execute-command", (data) => {
   const { command, executionId } = data;
   if (!command) return;
+
+  if (!isCommandSafe(command)) {
+    console.warn(`[Agent] BLOCKED unsafe command: "${command}" (ID: ${executionId})`);
+    socket.emit("command-output", {
+      executionId,
+      output: `⚠️ Command blocked by agent security policy. Only diagnostic/read-only commands are permitted.\n`,
+      type: "stderr",
+    });
+    socket.emit("command-close", { executionId, code: 1 });
+    return;
+  }
 
   console.log(`[Agent] Executing command: "${command}" (ID: ${executionId})`);
 
@@ -116,6 +101,4 @@ socket.on("execute-command", (data) => {
 
 setInterval(sendMetrics, 3000);
 
-console.log(
-  "Monitoring agent started..."
-);
+console.log("Monitoring agent started...");

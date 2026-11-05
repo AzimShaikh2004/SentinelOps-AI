@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -13,8 +14,34 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" />;
+  const [isAuthenticated] = useState(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return false;
+    try {
+      const parts = token.split(".");
+      if (parts.length !== 3) return false;
+      const payload = JSON.parse(atob(parts[1]));
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 };
 
 function App() {

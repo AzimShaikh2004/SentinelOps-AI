@@ -1,5 +1,5 @@
 const Docker = require("dockerode");
-const { getSystemMetrics } = require("../services/monitorService");
+const { getSystemMetrics } = require("../services/monitoringService");
 
 let docker;
 try {
@@ -11,12 +11,11 @@ try {
   console.log("Docker initialization failed");
 }
 
-
 const { getContainerLogs } = require("../services/dockerService");
 
 const getSystemHealth = async (req, res) => {
   try {
-    const metrics = getSystemMetrics();
+    const metrics = await getSystemMetrics();
     res.status(200).json(metrics);
   } catch (error) {
     res.status(500).json({

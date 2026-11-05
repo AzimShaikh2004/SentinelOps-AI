@@ -4,7 +4,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -47,11 +46,13 @@ const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Register error:", error.message);
     res.status(500).json({
-      message: error.message,
+      message: "Registration failed. Please try again.",
     });
   }
 };
+
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -97,8 +98,9 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Login error:", error.message);
     res.status(500).json({
-      message: error.message,
+      message: "Login failed. Please try again.",
     });
   }
 };
@@ -124,8 +126,9 @@ const generateApiKey = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("API Key generation error:", error.message);
     res.status(500).json({
-      message: error.message,
+      message: "Failed to generate API key.",
     });
   }
 };
@@ -135,8 +138,9 @@ const getApiKeys = async (req, res) => {
     const apiKeys = await ApiKey.find({ user: req.user.id }).sort({ createdAt: -1 });
     res.status(200).json(apiKeys);
   } catch (error) {
+    console.error("Fetch API Keys error:", error.message);
     res.status(500).json({
-      message: error.message,
+      message: "Failed to retrieve API keys.",
     });
   }
 };
@@ -149,8 +153,9 @@ const deleteApiKey = async (req, res) => {
     }
     res.status(200).json({ message: "API Key revoked successfully" });
   } catch (error) {
+    console.error("Delete API Key error:", error.message);
     res.status(500).json({
-      message: error.message,
+      message: "Failed to delete API key.",
     });
   }
 };
@@ -173,8 +178,9 @@ const updateIntegrations = async (req, res) => {
       user,
     });
   } catch (error) {
+    console.error("Update integrations error:", error.message);
     res.status(500).json({
-      message: error.message,
+      message: "Failed to update integrations.",
     });
   }
 };
@@ -187,8 +193,9 @@ const getIntegrations = async (req, res) => {
     }
     res.status(200).json(user);
   } catch (error) {
+    console.error("Get integrations error:", error.message);
     res.status(500).json({
-      message: error.message,
+      message: "Failed to retrieve integrations.",
     });
   }
 };
@@ -202,4 +209,3 @@ module.exports = {
   updateIntegrations,
   getIntegrations,
 };
-

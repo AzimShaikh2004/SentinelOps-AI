@@ -10,6 +10,7 @@ const detectAnomalies = async (metrics) => {
   const cpu = parseInt(metrics.cpuUsage) || 0;
   const memory = parseInt(metrics.memoryUsagePercentage) || 0;
   const download = parseFloat(metrics.downloadSpeed) || 0;
+  const disk = parseInt(metrics.diskUsagePercentage) || 0;
 
   // Fetch recent metrics history (up to last 30 entries)
   let history = [];
@@ -138,6 +139,29 @@ const detectAnomalies = async (metrics) => {
       aiAnalysis: "Incoming network traffic is statistically higher than normal baseline patterns, hinting at file transfers, large updates, or potential DDoS connections.",
       recommendation: "Review current network connection states, check active socket connections, and audit web server ingress logs.",
       confidence: netConfidence,
+      time: new Date().toLocaleTimeString(),
+    });
+  }
+
+  // 4. Disk Anomaly (threshold-based for storage capacity)
+  if (disk > 90) {
+    anomalies.push({
+      type: "DISK",
+      severity: "HIGH",
+      message: `Critical disk usage detected (current consumption ${disk}% exceeds limit of 90%)`,
+      aiAnalysis: "Disk capacity is approaching exhaustion. Applications may crash when disk space is depleted due to inability to write logs, temp files, or database entries.",
+      recommendation: "Clean up temp directories, rotate or archive old log files, and scale storage volume immediately.",
+      confidence: 95,
+      time: new Date().toLocaleTimeString(),
+    });
+  } else if (disk > 80) {
+    anomalies.push({
+      type: "DISK",
+      severity: "MEDIUM",
+      message: `Elevated disk usage detected (current consumption ${disk}% exceeds warning threshold of 80%)`,
+      aiAnalysis: "Disk usage is elevated. While not immediately critical, continuous growth without intervention could lead to service disruption.",
+      recommendation: "Schedule maintenance to review log rotation policies, archive historical data, and audit volume capacity.",
+      confidence: 88,
       time: new Date().toLocaleTimeString(),
     });
   }

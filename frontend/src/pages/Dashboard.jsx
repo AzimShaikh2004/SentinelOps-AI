@@ -125,6 +125,31 @@ const Dashboard = () => {
     } catch { toast.error("Failed to generate key"); }
   };
 
+  const handleExportPDF = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/api/reports/export-pdf`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        toast.error("Failed to generate PDF report");
+        return;
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "SentinelOps_Executive_Report.pdf";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success("Executive PDF report downloaded!");
+    } catch (err) {
+      toast.error("Error downloading report: " + err.message);
+    }
+  };
+
   const deleteApiKey = async (id) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/api-keys/${id}`, {
@@ -361,9 +386,7 @@ const Dashboard = () => {
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <NotificationCenter notifications={notifications} setNotifications={setNotifications} />
 
-            <ActionButton icon="📄" label="Export" onClick={() =>
-              window.open(`${API_BASE_URL}/api/reports/export-pdf?token=${localStorage.getItem("token")}`, "_blank")
-            } />
+            <ActionButton icon="📄" label="Export" onClick={handleExportPDF} />
             <ActionButton icon="🔑" label="API Keys" onClick={() => setShowApiKeyModal(true)} />
             <ActionButton icon="⚙" label="Settings" onClick={() => setShowSettingsModal(true)} />
 
@@ -391,7 +414,7 @@ const Dashboard = () => {
             </button>
 
             <button
-              onClick={() => { localStorage.removeItem("token"); window.location.href = "/"; }}
+              onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); window.location.href = "/login"; }}
               style={{
                 background: "rgba(239, 68, 68, 0.08)",
                 border: "1px solid rgba(239, 68, 68, 0.15)",
@@ -478,6 +501,7 @@ const Dashboard = () => {
         }}>
           <GaugeCard title="CPU Usage" value={metrics ? parseInt(metrics.cpuUsage) : 0} icon="⚡" />
           <GaugeCard title="Memory Usage" value={metrics ? parseInt(metrics.memoryUsagePercentage) : 0} color="#a78bfa" icon="🧠" />
+          <GaugeCard title="Disk Usage" value={metrics ? parseInt(metrics.diskUsagePercentage) || 0 : 0} color="#f59e0b" icon="💿" />
 
           <div className="glass-panel" style={{ padding: "24px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>

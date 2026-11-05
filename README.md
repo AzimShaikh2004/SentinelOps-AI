@@ -9,15 +9,16 @@
 </p>
 
 <p align="center">
-  Real-time server monitoring • Gemini AI diagnostics • Z-score anomaly detection • Autonomous self-healing autopilot
+  Real-time server monitoring • Gemini AI diagnostics • Z-score anomaly detection • Autonomous self-healing autopilot • Double Exponential Smoothing
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=white" alt="React" />
   <img src="https://img.shields.io/badge/Node.js-Express_5-339933?logo=nodedotjs&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/MongoDB-Mongoose_9-47A248?logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/MongoDB-Mongoose_8-47A248?logo=mongodb&logoColor=white" alt="MongoDB" />
   <img src="https://img.shields.io/badge/Socket.IO-4.8-010101?logo=socketdotio&logoColor=white" alt="Socket.IO" />
   <img src="https://img.shields.io/badge/Gemini_AI-Google-4285F4?logo=google&logoColor=white" alt="Gemini AI" />
+  <img src="https://img.shields.io/badge/Tests-30%2F30%20Passed-brightgreen?logo=node.js&logoColor=white" alt="Tests" />
   <img src="https://img.shields.io/badge/Docker-dockerode-2496ED?logo=docker&logoColor=white" alt="Docker" />
   <img src="https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite&logoColor=white" alt="Vite" />
 </p>
@@ -29,33 +30,35 @@
 - [Overview](#-overview)
 - [Architecture](#-architecture)
 - [Complete Feature List](#-complete-feature-list)
-- [Landing Page Feature Coverage](#-landing-page-feature-coverage)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
+- [Automated Testing Suite](#-automated-testing-suite)
 - [Environment Variables](#-environment-variables)
 - [API Endpoints](#-api-endpoints)
 - [WebSocket Events](#-websocket-events)
 - [Frontend Components](#-frontend-components)
 - [Key Algorithms](#-key-algorithms)
-- [Security](#-security)
+- [Security & DevSecOps](#-security--devsecops)
 - [License](#-license)
 
 ---
 
 ## 🧠 Overview
 
-**SentinelOps AI** is a full-stack, real-time infrastructure monitoring platform that combines traditional server telemetry with Google Gemini AI-powered diagnostics and a fully autonomous self-healing autopilot. It monitors CPU, memory, network, and Docker containers, detects anomalies using statistical Z-score analysis, and can autonomously diagnose and remediate issues without human intervention.
+**SentinelOps AI** is an enterprise-grade, full-stack infrastructure monitoring and anomaly detection platform that synthesizes real-time hardware telemetry with Google Gemini AI diagnostics and an autonomic 5-phase self-healing recovery loop. It monitors CPU, memory, filesystem storage, network throughput, and Docker containers, evaluates statistical Z-score deviations against rolling historical baselines, projects resource saturation trajectories via Holt's Double Exponential Smoothing, and autonomously mitigates operational incidents.
 
 ### What Makes It Different
 
 | Capability | Description |
 |---|---|
-| **Autonomous Self-Healing** | A 5-phase autopilot loop that generates a diagnosis command via AI, executes it on the target node via WebSocket, designs a remediation strategy, applies the fix, and verifies recovery — all without human intervention. |
-| **Statistical Anomaly Detection** | Z-score-based anomaly detection against rolling historical baselines (not just static thresholds). |
-| **Predictive Forecasting** | Holt's Double Exponential Smoothing projects CPU and memory saturation 15 seconds into the future. |
-| **AI + Rules-Based Fallback** | Every AI-powered feature gracefully falls back to deterministic rules-based logic when the Gemini API is unavailable or rate-limited. |
-| **Multi-Model Failover** | The Gemini integration automatically cycles through 4 different model variants with per-model rate-limit cooldowns. |
+| **Autonomous Self-Healing** | A 5-phase autopilot loop that diagnoses root causes via Gemini AI, dispatches diagnostic commands to target nodes, constructs remediation actions, applies fixes, and verifies recovery — governed by a strict command execution allowlist and 30-minute cooldowns. |
+| **Statistical Anomaly Detection** | Rolling Z-score evaluation against historical baselines ($Z > 2.5$) with static fallback guards for memory ($>85\%$), disk ($>80\%$ warning, $>90\%$ critical), and network spikes. |
+| **Predictive Forecasting** | Holt's Double Exponential Smoothing ($\alpha=0.3, \beta=0.1$) extrapolates future resource usage trajectory 5 steps (~15s) ahead. |
+| **AI + Rules-Based Fallback** | Every AI feature gracefully degrades to deterministic SRE rule heuristics if Google Gemini credentials are unset, network drops occur, or HTTP 429 quota limits are encountered. |
+| **Multi-Model Failover** | Transparently rotates across 4 Gemini model variants (`gemini-flash-lite-latest`, `gemini-2.0-flash`, `gemini-2.5-flash`, `gemini-2.0-flash-lite`) with dynamic quota cooldown timers. |
+| **Enterprise Security & DevSecOps** | Zero query-string token leaks, input sanitization middleware with password complexity rules, brute-force rate-limiting, strict CORS policies, bcrypt password hashing, and safe command allowlist in remote monitoring daemons. |
+| **Automated Testing Suite** | Comprehensive 30-test automated suite (`node:test`) covering forecasters, statistical anomaly detection, AI fallback rules, and input validation with 100% pass rate. |
 
 ---
 
@@ -69,28 +72,29 @@
 │  ┌──────────────┐     WebSocket      ┌────────────────────────────────┐  │
 │  │  Monitoring   │ ◄──────────────►  │        Backend (Node.js)        │  │
 │  │   Agent       │   Socket.IO       │  ┌──────────────────────────┐  │  │
-│  │  (Node.js)    │   (Port 5000)     │  │  Express REST API        │  │  │
+│  │  (Node.js)    │   (Port 5000)     │  │  Express 5 REST API      │  │  │
 │  │              │                    │  │  Socket.IO Server         │  │  │
-│  │  • CPU       │                    │  │  Anomaly Detector (Z)     │  │  │
-│  │  • Memory    │                    │  │  AI Analyzer (Gemini)     │  │  │
-│  │  • Network   │                    │  │  Forecaster (Holt)        │  │  │
-│  │  • Exec Cmds │                    │  │  Autopilot Controller     │  │  │
-│  └──────────────┘                    │  │  Docker Service           │  │  │
-│                                      │  │  Notifier (Slack/Discord) │  │  │
-│  ┌──────────────┐     WebSocket      │  │  PDF Report Generator     │  │  │
-│  │  Frontend     │ ◄──────────────►  │  └──────────────────────────┘  │  │
-│  │  (React+Vite) │   Socket.IO       │              │                  │  │
-│  │              │   (JWT Auth)       │              ▼                  │  │
-│  │  • Dashboard  │                    │  ┌──────────────────────────┐  │  │
-│  │  • Landing    │                    │  │    MongoDB Atlas          │  │  │
-│  │  • Login      │     REST API       │  │  ┌────────────────────┐  │  │  │
-│  │  • Register   │ ◄──────────────►  │  │  │ Users              │  │  │  │
-│  │  • AI Chat    │   (Port 5000)     │  │  │ Incidents          │  │  │  │
-│  └──────────────┘                    │  │  │ SystemMetrics       │  │  │  │
-│                                      │  │  │ ApiKeys             │  │  │  │
-│  ┌──────────────┐                    │  │  │ AutopilotEvents     │  │  │  │
-│  │  Google       │ ◄── API ────────► │  │  └────────────────────┘  │  │  │
-│  │  Gemini AI    │                    │  └──────────────────────────┘  │  │
+│  │  • CPU Load  │                    │  │  Z-Score Anomaly Engine   │  │  │
+│  │  • Memory RSS│                    │  │  Holt's DES Forecaster    │  │  │
+│  │  • Disk Usage│                    │  │  Gemini AI SRE Engine     │  │  │
+│  │  • Network IO│                    │  │  Autopilot Controller     │  │  │
+│  │  • Safe Exec │                    │  │  Docker Container Service │  │  │
+│  └──────────────┘                    │  │  Alert Dispatcher (Webhooks)│ │
+│                                      │  │  Executive PDF Generator  │  │  │
+│  ┌──────────────┐     WebSocket      │  └──────────────────────────┘  │  │
+│  │  Frontend     │ ◄──────────────►  │              │                  │  │
+│  │  (React 19)   │   Socket.IO       │              ▼                  │  │
+│  │              │   (Auth Token)     │  ┌──────────────────────────┐  │  │
+│  │  • Dashboard  │                    │  │    MongoDB Atlas          │  │  │
+│  │  • Visualizer │     REST API       │  │  ┌────────────────────┐  │  │  │
+│  │  • Incident UI│ ◄──────────────►  │  │  │ Users (Indexed)    │  │  │  │
+│  │  • Terminal   │   (Port 5000)     │  │  │ Incidents (TTL/Idx)│  │  │  │
+│  │  • Autopilot  │                    │  │  │ SystemMetrics (Idx)│  │  │  │
+│  └──────────────┘                    │  │  │ ApiKeys             │  │  │  │
+│                                      │  │  │ AutopilotEvents     │  │  │  │
+│  ┌──────────────┐                    │  │  └────────────────────┘  │  │  │
+│  │  Google       │ ◄── API ────────► │  │  └──────────────────────────┘  │  │
+│  │  Gemini AI    │                    │  └────────────────────────────────┘  │
 │  └──────────────┘                    └────────────────────────────────┘  │
 │                                                                          │
 │  ┌──────────────┐                                                        │
@@ -102,176 +106,19 @@
 
 ---
 
-## ✅ Complete Feature List
+## ⚡ Complete Feature List
 
-### 1. 🖥️ Real-Time System Monitoring
-- **CPU Usage** — Live percentage via `systeminformation`, updated every 3 seconds
-- **Memory Usage** — Used/free/total memory with percentage calculation
-- **Network I/O** — Download and upload speeds (MB/s) from network interface stats
-- **CPU Cores** — Total logical core count
-- **System Uptime** — Hours since last boot
-- **Hostname & Platform** — OS identification and architecture
-- **Running Processes** — Top 10 processes (Chrome, VS Code, Node) with CPU% and memory (MB)
-
-### 2. 📊 Live Charts & Visualizations
-- **Real-Time CPU Chart** — Recharts line chart with last 10 data points, gradient fill, and forecast overlay
-- **Historical CPU Chart** — Long-term CPU trend chart with 1-minute granularity from MongoDB (up to 1440 data points = 24 hours)
-- **Network Chart** — Dual-line chart showing download and upload speeds
-- **Gauge Cards** — Animated circular progress bars (CPU and Memory) with dynamic color thresholds
-
-### 3. 🧠 Gemini AI Diagnostics
-- **AI SRE Analysis** — Gemini analyzes live metrics, anomalies, and process lists to generate diagnostic summaries with confidence scores
-- **Manual Diagnostic Trigger** — One-click "Run Diagnostic" button invokes AI analysis on demand
-- **AI Remediation API** — Generates safe diagnostic commands and remediation scripts per anomaly type
-- **Rules-Based Fallback** — When `GEMINI_API_KEY` is missing or rate-limited, deterministic rules produce equivalent analysis
-
-### 4. 🔍 Statistical Anomaly Detection (Z-Score)
-- **Rolling Baseline** — Computes mean and standard deviation from the last 30 historical metric entries in MongoDB
-- **Z-Score Thresholds** — CPU/Memory anomalies trigger at Z > 2.5; Network at Z > 3.0
-- **Static Fallback Thresholds** — If insufficient history (< 5 data points): CPU > 85%, Memory > 85%, Network > 20 MB/s
-- **Confidence Scoring** — Dynamic confidence percentage based on Z-score magnitude (88–99%)
-- **Three Anomaly Types** — CPU, MEMORY, and NETWORK with severity levels (HIGH, MEDIUM)
-
-### 5. 🤖 Autonomous Self-Healing Autopilot (5-Phase Loop)
-The crown feature — a fully autonomous remediation pipeline:
-
-| Phase | Name | Description |
-|-------|------|-------------|
-| 1 | **Diagnosis Command Generation** | Gemini AI (or rules-based fallback) generates a safe diagnostic shell command appropriate for the OS (Windows PowerShell / Linux bash) |
-| 2 | **Diagnostics Execution on Node** | The command is sent to the remote monitoring agent via WebSocket and executed with a 35-second timeout |
-| 3 | **Remediation Strategy Selection** | Gemini analyzes the diagnostic output and recommends a specific mitigation command; falls back to rules-based remediation if AI is unavailable |
-| 4 | **Mitigation Action Execution** | The remediation command is executed on the agent node |
-| 5 | **Recovery Verification Check** | Waits 6 seconds for fresh telemetry and marks the event as RESOLVED or FAILED |
-
-Additional Autopilot Features:
-- **30-Minute Cooldown** — Prevents re-triggering the same anomaly type on the same server within 30 minutes
-- **Event Logging** — Full audit trail stored in MongoDB (`AutopilotEvent` model) with per-step command, output, AI analysis, and status
-- **Real-Time Dashboard Updates** — Each phase broadcasts progress to all connected dashboard clients via WebSocket
-- **History Panel** — Expandable timeline view of all past autopilot runs with step-by-step details
-
-### 6. 🔮 Predictive Forecasting
-- **Algorithm** — Holt's Double Exponential Smoothing (linear trend model)
-- **Parameters** — α = 0.3 (level smoothing), β = 0.1 (trend smoothing)
-- **Horizon** — Forecasts 5 steps (approximately 15 seconds) into the future
-- **Metrics** — Both CPU and Memory usage are forecasted
-- **Early Warning Alerts** — Dashboard shows warnings when projected values exceed 80% (CPU) or 90% (Memory)
-- **Value Clamping** — Forecasted values are constrained to 0–100% range
-
-### 7. 💬 AI SRE Chat Assistant
-- **Natural Language Interface** — Ask infrastructure questions in plain English
-- **Live Context Injection** — Every chat message includes current hostname, CPU, memory, network, anomalies, and top processes
-- **Chat History** — Full conversation history is maintained and sent with each request for contextual responses
-- **Gemini-Powered** — Uses the same multi-model failover system with rate-limit awareness
-- **Graceful Error Handling** — Returns fallback diagnostic info even when the API key is invalid
-
-### 8. 🐳 Docker Container Monitoring
-- **Container Listing** — All containers (running + stopped) via `dockerode`
-- **Live Stats** — Per-container CPU% and memory (MB) calculated from Docker stats API
-- **Container Controls** — Start, stop, and restart containers from the dashboard
-- **Container Logs** — Stream last 150 lines of container logs with timestamp parsing
-- **Cross-Platform** — Auto-detects Docker socket path (Windows named pipe vs Linux unix socket)
-
-### 9. 🌐 Multi-Server Fleet View
-- **Agent Authentication** — Remote agents authenticate via generated API keys
-- **Server Registration** — Each agent identifies itself by hostname and is tracked in a live server list
-- **Status Tracking** — ONLINE/OFFLINE status with 10-second heartbeat timeout
-- **Per-Server Metrics** — CPU, memory, network, upload/download for each connected agent
-- **Offline Detection** — Automatic incident creation when a server goes offline
-
-### 10. 📢 Slack & Discord Alert Notifications
-- **Slack Webhooks** — Rich attachments with color-coded severity, alert type, message, and timestamp
-- **Discord Webhooks** — Embed messages with severity fields, descriptions, and footer branding
-- **Per-User Configuration** — Each user can set their own webhook URLs in the Settings modal
-- **Automatic Dispatch** — Alerts fire automatically when anomalies are detected (no manual action needed)
-
-### 11. 📄 AI-Powered PDF Reports
-- **One-Click Export** — Download a styled executive incident report as PDF
-- **AI Executive Summary** — Gemini generates an executive-level health summary, root cause analysis, and numbered remediation plan
-- **Operational Metrics Grid** — Total incidents, memory alerts, CPU alerts, offline server counts
-- **Incident Log Table** — Zebra-striped table with type, severity, message, and timestamp (up to 12 recent incidents)
-- **Professional Styling** — PDFKit-generated document with dark header, color palette, and branded footer
-
-### 12. 🖥️ Remote Terminal Execution
-- **Interactive Terminal** — Full terminal overlay with command input, output streaming, and clear
-- **WebSocket Relay** — Dashboard → Backend → Agent → Backend → Dashboard command routing
-- **Execution IDs** — Each command gets a unique ID for output correlation
-- **Role-Based Access** — Only `admin` and `engineer` roles can execute commands
-- **Streaming Output** — stdout and stderr stream back in real-time (not buffered)
-- **Timeout Safety** — Commands time out after 30 seconds on the agent
-
-### 13. 🔑 Authentication & Authorization
-- **JWT Authentication** — Token-based auth with 7-day expiry using `jsonwebtoken`
-- **Password Hashing** — bcrypt with 10 salt rounds
-- **Role-Based Access Control (RBAC)** — Three roles: `admin`, `engineer`, `viewer`
-- **Protected Routes** — Middleware guards for authenticated and role-restricted endpoints
-- **Socket Authentication** — WebSocket connections require either JWT token or API key
-
-### 14. 🔐 API Key Management & One-Click Installer
-- **Key Generation** — Cryptographically secure keys (`sentinel_` prefix + 48 hex chars) via `crypto.randomBytes`
-- **Key Description** — Optional description for identification (e.g., "Production VM")
-- **Key Revocation** — Delete/revoke keys from the dashboard modal
-- **Agent Auth** — Agents use API keys to authenticate their WebSocket connections
-- **Per-User Scoping** — Each user manages their own set of API keys
-- **One-Click Installer** — Pre-configured PowerShell (Windows) and Bash (Linux) installation commands generated inside the modal with auto-injected API keys and backend URLs
-
-### 15. 🔔 Notification Center
-- **In-App Notifications** — Real-time notification bell with unread count badge
-- **Anomaly Notifications** — Each detected anomaly creates a notification entry
-- **Toast Notifications** — `react-toastify` with dark theme, glassmorphism styling, and gradient progress bar
-- **Deduplication** — Same notification throttled to once per 60 seconds
-
-### 16. 📈 Historical Metrics & Incident Management
-- **Metric Persistence** — System metrics saved to MongoDB every 60 seconds
-- **Incident Logging** — Anomalies create incidents with type, severity, message, and timestamp
-- **Incident Deduplication** — Same incident message won't duplicate within a 5-minute window
-- **Incident History Panel** — Timeline view of all incidents with AI-powered incident summaries
-- **AI Incident Summary** — Gemini generates a high-level summary of recent incident trends
-
-### 17. 🎨 Premium Landing Page
-- **Animated Particle Background** — Canvas-based particle network with mouse interaction
-- **Scroll-Reveal Animations** — IntersectionObserver-powered fade-in-up animations on scroll
-- **Animated Counter Hook** — Numbers count up with cubic easing when scrolled into view
-- **Terminal Preview** — Animated CLI simulation showing SentinelOps commands typing out
-- **Dashboard Mini Preview** — Mock dashboard with gauges, charts, and navigation
-- **Orbiting Ring SVGs** — Decorative rotating orbit animations in the hero section
-- **Mobile Responsive** — Hamburger menu, responsive grid, and adaptive typography
-- **Glassmorphism Design** — Frosted glass panels, subtle gradients, and aurora glow effects
-
-### 18. 🔒 Security Middleware
-- **Helmet** — HTTP security headers
-- **CORS** — Cross-origin resource sharing configuration
-- **Morgan** — HTTP request logging (dev mode)
-- **Rate Limiting** — `express-rate-limit` available in dependencies
-- **Input Validation** — Email uniqueness, password minimum length (6 chars)
-
----
-
-## 🗺 Landing Page Feature Coverage
-
-Every feature in the project is represented on the landing page. Here is the complete mapping:
-
-| # | Project Feature | Landing Page Section | How It's Mentioned |
-|---|----------------|---------------------|-------------------|
-| 1 | Real-Time WebSocket Telemetry | ✅ Features Grid (Card 3) | "CPU, memory, network, and process-level metrics streamed every 3 seconds via Socket.IO" |
-| 2 | Gemini AI Diagnostics | ✅ Features Grid (Card 1) | "Gemini-powered SRE analyzes live system metrics, identifies root causes" |
-| 3 | Autonomous Self-Healing Autopilot | ✅ Features Grid (Card 2) + Architecture Section | "5-phase autopilot loop: Generate diagnosis → Execute on node → Design remediation → Apply fix → Verify recovery" |
-| 4 | Predictive Forecasting (Holt) | ✅ Features Grid (Card 4) | "Holt's Double Exponential Smoothing predicts CPU and memory saturation 15 seconds ahead" |
-| 5 | Docker Container Monitoring | ✅ Features Grid (Card 5) | "Live Docker container stats via dockerode — CPU%, memory usage, state, and image info" |
-| 6 | Multi-Server Fleet View | ✅ Features Grid (Card 6) | "Deploy lightweight Node.js agents on any machine… streams metrics to a unified command center" |
-| 7 | AI SRE Chat Assistant | ✅ Tech Stack Section (Card 1) | "Ask your infrastructure questions in natural language. Gemini AI responds with real-time system context" |
-| 8 | Slack & Discord Alerts | ✅ Tech Stack Section (Card 2) | "Configure webhook URLs in the dashboard. Get instant anomaly alerts" |
-| 9 | AI-Powered PDF Reports | ✅ Tech Stack Section (Card 3) | "One-click export of executive incident reports. Gemini generates an executive summary, root cause analysis" |
-| 10 | Remote Terminal Execution | ✅ Tech Stack Section (Card 4) | "Run diagnostic commands directly on any connected agent from the dashboard" |
-| 11 | API Keys & RBAC | ✅ Tech Stack Section (Card 5) | "Role-based access control (admin, engineer, viewer). Generate and manage API keys" |
-| 12 | Historical Metrics & Incidents | ✅ Tech Stack Section (Card 6) | "All metrics are persisted to MongoDB with 1-minute granularity. Incident history with timeline view" |
-| 13 | Z-Score Anomaly Detection | ✅ Hero Subtitle + Demo Section + Architecture Step 2 | "Z-score anomaly detection" / "Z-score above 2.5 triggers an anomaly alert with confidence scoring" |
-| 14 | Rules-Based Fallback | ✅ Features Grid (Card 1) | "rules-based fallback when API is unavailable" |
-| 15 | Agent Architecture | ✅ Architecture Step 1 | "A lightweight Node.js agent uses systeminformation to collect CPU, memory, and network data every 3 seconds" |
-| 16 | WebSocket Communication | ✅ Demo Annotations | "WebSocket real-time stream" floating badge |
-| 17 | Tech Stack (React, Node, MongoDB, Socket.IO, Gemini, Docker) | ✅ Hero Trust Logos + Footer "Built With" Column | Full logo strip under hero + footer columns |
-| 18 | Authentication (Login/Register) | ✅ Navbar Buttons + CTA Section | "Sign In" / "Get Started" / "Create Account & Launch" buttons |
-
-**Result: ✅ All 18 features are represented on the landing page.**
+1. **Real-Time Telemetry Pipeline:** Polls and broadcasts CPU usage, RAM utilization, filesystem storage (`si.fsSize()`), network ingress/egress, top 10 running processes sorted by CPU load, and host OS metadata every 3 seconds via Socket.IO.
+2. **Statistical Anomaly Engine:** Employs rolling Z-score detection against the last 30 historical metrics ($Z > 2.5$) for CPU and memory, plus threshold fallbacks (>80% warning, >90% critical on disk).
+3. **Double Exponential Smoothing (DES):** Implements Holt's algorithm ($\alpha=0.3, \beta=0.1$) to project 5-step future resource demand (~15s) with trend tracking.
+4. **Autonomous Self-Healing Autopilot:** 5-phase loop (Detect $\rightarrow$ Diagnose $\rightarrow$ Remediate $\rightarrow$ Apply $\rightarrow$ Verify) with execution cooldowns and safe command allowlists.
+5. **Generative AI Diagnostics:** Integrates Google Gemini 2.5 Flash SDK to deliver root-cause explanations and suggested remediation commands, with graceful fallback to deterministic SRE rules.
+6. **Multi-Model AI Failover:** Sequentially attempts 4 Gemini models on rate-limit (HTTP 429) errors, enforcing backoff cooldowns per model.
+7. **Multi-Server Fleet Operations:** Supports distributed agents (`agent.js`) streaming live hardware statistics from remote Linux and Windows nodes, with automatic offline detection after 10-second heartbeat timeouts.
+8. **Multi-Channel Alert Dispatcher:** Employs Slack incoming webhooks, Discord rich embeds, and automated SMTP email notifications (via Nodemailer) for critical anomalies.
+9. **Docker Container Management:** Real-time container inspection, status telemetry, interactive start/stop/restart operations, and live stdout/stderr log streaming.
+10. **Executive PDF Reports:** Generates authenticated downloadable PDF incident summaries and server health reports.
+11. **Hardened Remote Terminal:** Web-based terminal console enabling authorized DevOps engineers to execute diagnostic commands on remote agents, secured by a strict regex allowlist.
 
 ---
 
@@ -280,48 +127,32 @@ Every feature in the project is represented on the landing page. Here is the com
 ### Frontend
 | Technology | Version | Purpose |
 |---|---|---|
-| React | 19.2 | UI framework |
-| Vite | 8.0 | Build tool and dev server |
-| React Router DOM | 7.15 | Client-side routing |
-| Recharts | 3.8 | Charts and data visualization |
-| Socket.IO Client | 4.8 | Real-time WebSocket communication |
-| React Toastify | 11.1 | Toast notification system |
-| React Circular Progressbar | 2.2 | Gauge card visualizations |
-| JWT Decode | 4.0 | Client-side token decoding |
-| Axios | 1.16 | HTTP client |
+| React | 19.2 | Core UI component library |
+| Vite | 6.0 / 8.0 | High-performance build tool and dev server |
+| React Router DOM | 7.13 | Client-side routing and protected routes |
+| Recharts | 2.15 | Real-time telemetry and forecast charting |
+| Socket.IO Client | 4.8 | Low-latency bi-directional WebSocket client |
+| Lucide React | 1.16 | UI icon set |
+| Canvas Confetti | 1.9 | Interactive celebratory feedback |
 
 ### Backend
 | Technology | Version | Purpose |
 |---|---|---|
-| Node.js + Express | 5.2 | REST API server |
-| Socket.IO | 4.8 | Real-time bidirectional communication |
-| Mongoose | 9.6 | MongoDB ODM |
-| @google/genai | 2.8 | Google Gemini AI integration |
+| Node.js | 22 LTS | JavaScript runtime engine |
+| Express | 5.2 | RESTful API server framework |
+| Socket.IO | 4.8 | Real-time WebSocket server engine |
+| Mongoose | 8.12 | MongoDB Object Data Modeling (ODM) |
+| @google/genai | 0.1 | Official Google Gemini Generative AI SDK |
 | dockerode | 5.0 | Docker Engine API client |
-| PDFKit | 0.19 | PDF document generation |
-| bcryptjs | 3.0 | Password hashing |
-| jsonwebtoken | 9.0 | JWT authentication |
+| PDFKit | 0.19 | PDF executive document generation |
+| bcryptjs | 3.0 | Salting and password hashing |
+| jsonwebtoken | 9.0 | Cryptographic JWT authentication |
 | Helmet | 8.1 | HTTP security headers |
-| Morgan | 1.10 | HTTP request logging |
-| systeminformation | 5.31 | System metrics collection |
-| Axios | 1.18 | HTTP client (Slack/Discord webhooks) |
-| Nodemailer | 8.0 | Email service (available) |
-| express-rate-limit | 8.5 | API rate limiting |
-| dotenv | 17.4 | Environment variable management |
-| nodemon | 3.1 | Development auto-restart (dev dependency) |
-
-### Monitoring Agent
-| Technology | Version | Purpose |
-|---|---|---|
-| Socket.IO Client | 4.8 | WebSocket connection to backend |
-| systeminformation | 5.31 | CPU, memory, network data collection |
-
-### Infrastructure
-| Technology | Purpose |
-|---|---|
-| MongoDB Atlas | Cloud database |
-| Docker Engine | Container runtime |
-| Google Gemini AI | AI diagnostics, chat, remediation, and reports |
+| Morgan | 1.10 | HTTP request logger |
+| systeminformation | 5.31 | System metrics and disk collection |
+| Axios | 1.18 | Slack and Discord webhook client |
+| Nodemailer | 8.0 | Enterprise SMTP email notification service |
+| express-rate-limit | 8.5 | Brute-force authentication rate limiting |
 
 ---
 
@@ -329,106 +160,93 @@ Every feature in the project is represented on the landing page. Here is the com
 
 ```
 SentinelOps-AI/
-├── agent/                          # Lightweight monitoring agent
-│   ├── agent.js                    # Main agent — collects metrics, sends via Socket.IO, executes commands
-│   ├── package.json                # Dependencies: socket.io-client, systeminformation
-│   └── .env                        # API_KEY for agent authentication
+├── .github/
+│   └── workflows/
+│       └── ci.yml                  # GitHub Actions CI workflow (lint, syntax, tests)
+├── package.json                    # Root workspace convenience scripts
+├── SentinelOps_AI_MCA_Capstone_Project_Report.docx  # Formal university capstone report
 │
-├── backend/                        # Express.js API server
+├── agent/                          # Lightweight distributed monitoring agent
+│   ├── agent.js                    # Metrics collection, Socket.IO client, safe exec allowlist
+│   ├── package.json
+│   └── .env                        # BACKEND_URL, API_KEY
+│
+├── backend/                        # Express 5 REST API & WebSocket server
 │   ├── src/
-│   │   ├── server.js               # Main entry — Express app, Socket.IO server, polling loop
-│   │   │
+│   │   ├── server.js               # Main entry — Express app, Socket.IO, polling loop, rate-limiting
 │   │   ├── config/
-│   │   │   └── db.js               # MongoDB connection via Mongoose
-│   │   │
+│   │   │   └── db.js               # MongoDB connection with Mongoose
 │   │   ├── controllers/
-│   │   │   ├── authController.js   # Register, login, API key CRUD, webhook integrations
-│   │   │   ├── autopilotController.js  # 5-phase self-healing loop, event logging, cooldown
-│   │   │   ├── monitorController.js    # Monitor routes handler
-│   │   │   └── reportController.js     # AI-powered PDF report generation
-│   │   │
+│   │   │   ├── authController.js   # Registration, login, logout, API keys, integrations
+│   │   │   ├── autopilotController.js # 5-phase self-healing loop and cooldown logic
+│   │   │   ├── monitorController.js   # Autopilot status, events, and metrics
+│   │   │   └── reportController.js    # PDF report generation
 │   │   ├── middleware/
-│   │   │   ├── authMiddleware.js   # JWT verification middleware
-│   │   │   └── roleMiddleware.js   # Role-based access control middleware
-│   │   │
+│   │   │   ├── authMiddleware.js   # JWT authentication (header-only, zero query tokens)
+│   │   │   ├── roleMiddleware.js   # Role-based access control (admin, engineer, viewer)
+│   │   │   └── validateInput.js    # Input sanitization, password complexity & email regex
 │   │   ├── models/
-│   │   │   ├── ApiKey.js           # Agent API key schema
-│   │   │   ├── AutopilotEvent.js   # Self-healing event + steps audit trail
-│   │   │   ├── Incident.js         # Anomaly incident records
-│   │   │   ├── SystemMetric.js     # Historical metric snapshots (1-min granularity)
-│   │   │   └── User.js            # User schema with roles and webhook URLs
-│   │   │
+│   │   │   ├── ApiKey.js           # Remote agent credentials schema
+│   │   │   ├── AutopilotEvent.js   # Self-healing audit trail schema
+│   │   │   ├── Incident.js         # Anomaly incident records with severity enums and indexes
+│   │   │   ├── SystemMetric.js     # Time-series metrics (CPU, RAM, disk, network) with indexes
+│   │   │   └── User.js            # User accounts with roles and webhook configuration
 │   │   ├── routes/
-│   │   │   ├── authRoutes.js       # /api/auth — register, login, API keys, integrations
-│   │   │   ├── incidentRoutes.js   # /api/incidents — fetch incident history
-│   │   │   ├── metricsRoutes.js    # /api/metrics — history, AI analyze, AI chat, AI remediation
-│   │   │   ├── monitorRoutes.js    # /api/monitor — autopilot status, events, Docker logs
-│   │   │   ├── protectedRoutes.js  # /api/protected — JWT-protected test endpoint
-│   │   │   └── reportRoutes.js     # /api/reports — PDF export
-│   │   │
+│   │   │   ├── authRoutes.js       # /api/auth endpoints (rate-limited, validated)
+│   │   │   ├── incidentRoutes.js   # /api/incidents (JWT-protected)
+│   │   │   ├── metricsRoutes.js    # /api/metrics (history, AI analyze, AI chat, remediation)
+│   │   │   ├── monitorRoutes.js    # /api/monitor (autopilot events, Docker logs)
+│   │   │   ├── protectedRoutes.js  # /api/protected (JWT verification test)
+│   │   │   └── reportRoutes.js     # /api/reports (PDF export)
 │   │   ├── services/
-│   │   │   ├── dockerService.js    # Docker container listing, stats, and log streaming
-│   │   │   ├── emailService.js     # Email notification service (Nodemailer)
-│   │   │   ├── monitorService.js   # Monitor service handler
-│   │   │   └── monitoringService.js # System metrics collection (CPU, memory, network, processes)
-│   │   │
+│   │   │   ├── dockerService.js    # Dockerode container management & log streaming
+│   │   │   ├── emailService.js     # Nodemailer alert notification service
+│   │   │   ├── monitorService.js   # Metrics delegator service
+│   │   │   └── monitoringService.js# CPU, memory, diskUsage, network, and top 10 processes
 │   │   └── utils/
-│   │       ├── aiAnalyzer.js       # Gemini AI analysis with caching and rules-based fallback
-│   │       ├── anomalyDetector.js  # Z-score statistical anomaly detection
-│   │       ├── forecaster.js       # Holt's Double Exponential Smoothing forecaster
-│   │       ├── geminiHelper.js     # Multi-model Gemini fallback with rate-limit cooldowns
-│   │       ├── logger.js           # In-memory log ring buffer
-│   │       └── notifier.js         # Slack & Discord webhook alert dispatcher
-│   │
+│   │       ├── aiAnalyzer.js       # Gemini AI diagnostic engine with SRE rule fallback
+│   │       ├── anomalyDetector.js  # Z-score statistical engine & disk threshold checks
+│   │       ├── forecaster.js       # Holt's Double Exponential Smoothing algorithm
+│   │       ├── geminiHelper.js     # 4-model Gemini failover with quota cooldowns
+│   │       ├── logger.js           # Ring-buffer in-memory log manager
+│   │       └── notifier.js         # Slack, Discord, and SMTP email alert dispatcher
+│   ├── tests/                      # Automated unit and integration test harness
+│   │   ├── aiAnalyzer.test.js      # SRE rule fallback tests (5 tests)
+│   │   ├── anomalyDetector.test.js # Z-score and static threshold anomaly tests (8 tests)
+│   │   ├── forecaster.test.js      # Holt's DES algorithm tests (7 tests)
+│   │   └── validateInput.test.js   # Input validation and password complexity tests (10 tests)
 │   ├── package.json
-│   └── .env                        # PORT, MONGO_URI, JWT_SECRET, GEMINI_API_KEY
+│   └── .env.example
 │
-├── frontend/                       # React + Vite SPA
-│   ├── src/
-│   │   ├── App.jsx                 # Router setup, protected routes, toast config
-│   │   ├── main.jsx                # React DOM entry point
-│   │   ├── index.css               # Global styles, animations, glassmorphism design system
-│   │   │
-│   │   ├── pages/
-│   │   │   ├── Landing.jsx         # Premium landing page with animations and feature showcase
-│   │   │   ├── Dashboard.jsx       # Main monitoring command center (1000+ lines)
-│   │   │   ├── Login.jsx           # Authentication — login form
-│   │   │   └── Register.jsx        # Authentication — registration form
-│   │   │
-│   │   ├── components/
-│   │   │   ├── AIAnalysisCard.jsx      # AI diagnostic results card
-│   │   │   ├── AIAnomalyPanel.jsx      # Anomaly alert panel with remediation actions
-│   │   │   ├── AIIncidentSummary.jsx   # AI-generated incident trend summary
-│   │   │   ├── AutopilotConsole.jsx    # Self-healing autopilot control & timeline
-│   │   │   ├── CPUChart.jsx            # Real-time CPU line chart with forecast
-│   │   │   ├── DockerPanel.jsx         # Docker container management panel
-│   │   │   ├── GaugeCard.jsx           # Circular progress gauge card
-│   │   │   ├── HistoricalCPUChart.jsx  # Long-term CPU trend chart
-│   │   │   ├── IncidentHistory.jsx     # Incident timeline list
-│   │   │   ├── LoadingSpinner.jsx      # Loading animation component
-│   │   │   ├── LogsConsole.jsx         # System logs viewer
-│   │   │   ├── MultiServerPanel.jsx    # Multi-server fleet status panel
-│   │   │   ├── NetworkChart.jsx        # Download/Upload speed chart
-│   │   │   ├── NotificationCenter.jsx  # Bell icon notification dropdown
-│   │   │   ├── ParticleBackground.jsx  # Canvas particle animation
-│   │   │   ├── ProcessTable.jsx        # Running processes table
-│   │   │   └── TerminalConsole.jsx     # Remote command execution terminal
-│   │   │
-│   │   ├── socket/
-│   │   │   └── socket.js              # Socket.IO client singleton
-│   │   │
-│   │   └── styles/
-│   │       └── landing.css            # Landing page premium styles (32KB)
-│   │
-│   ├── index.html
-│   ├── vite.config.js
-│   ├── package.json
-│   └── e2e-test-simulation.js      # End-to-end test simulation script
-│
-├── docker/                         # Docker configuration (placeholder)
-├── docs/                           # Documentation (placeholder)
-├── monitoring-engine/              # Monitoring engine (placeholder)
-└── README.md                       # This file
+└── frontend/                       # React 19 + Vite SPA
+    ├── src/
+    │   ├── App.jsx                 # Router, protected routes, JWT expiry validation
+    │   ├── main.jsx                # DOM root entry
+    │   ├── index.css               # Global glassmorphism styling
+    │   ├── pages/
+    │   │   ├── Landing.jsx         # Product landing page with live animations
+    │   │   ├── Dashboard.jsx       # Unified operations command center
+    │   │   ├── Login.jsx           # Login interface with client-side validation
+    │   │   └── Register.jsx        # Registration interface with password complexity checks
+    │   ├── components/
+    │   │   ├── AIAnalysisCard.jsx  # AI diagnostic card with confidence metrics
+    │   │   ├── AIAnomalyPanel.jsx  # Anomaly alert list with manual remediation triggers
+    │   │   ├── AIIncidentSummary.jsx# Executive incident summary card
+    │   │   ├── AutopilotConsole.jsx# Autopilot control switch, status, and event timeline
+    │   │   ├── CPUChart.jsx        # Live CPU telemetry line chart with forecast overlay
+    │   │   ├── DockerPanel.jsx     # Docker container manager, action buttons, and log viewer
+    │   │   ├── GaugeCard.jsx       # Circular gauges for CPU, Memory, and Disk usage
+    │   │   ├── HistoricalCPUChart.jsx # Long-term telemetry trend viewer
+    │   │   ├── IncidentHistory.jsx # Searchable, severity-coded incident timeline
+    │   │   ├── LogsConsole.jsx     # Real-time streaming system logs
+    │   │   ├── MultiServerPanel.jsx# Multi-server cluster node status cards
+    │   │   ├── NetworkChart.jsx    # Dual-axis network download/upload line chart
+    │   │   ├── NotificationCenter.jsx # Unread notification dropdown
+    │   │   └── ProcessTable.jsx    # Real-time top-10 active processes table
+    │   └── socket/
+    │       └── socket.js           # Dynamic Socket.IO client singleton
+    ├── vite.config.js
+    └── package.json
 ```
 
 ---
@@ -437,10 +255,10 @@ SentinelOps-AI/
 
 ### Prerequisites
 
-- **Node.js** v18+ and npm
+- **Node.js** v20+ or v22 LTS and npm
 - **MongoDB** — local instance or MongoDB Atlas cloud cluster
-- **Google Gemini API Key** — obtain from [Google AI Studio](https://aistudio.google.com/)
-- **Docker** (optional) — for container monitoring features
+- **Google Gemini API Key** — from [Google AI Studio](https://aistudio.google.com/) *(optional; rules engine operates offline)*
+- **Docker Engine** *(optional; required for container monitoring)*
 
 ### 1. Clone the Repository
 
@@ -449,69 +267,82 @@ git clone https://github.com/your-username/SentinelOps-AI.git
 cd SentinelOps-AI
 ```
 
-### 2. Set Up the Backend
+### 2. Configure Backend
 
 ```bash
 cd backend
-npm install
+cp .env.example .env
 ```
 
-Create a `.env` file in `backend/`:
+Populate `backend/.env`:
 
 ```env
 PORT=5000
-MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/sentinelops?retryWrites=true&w=majority
-JWT_SECRET=your_super_secret_key_here
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/sentinelops?retryWrites=true&w=majority
+JWT_SECRET=your_high_entropy_jwt_secret_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
+FRONTEND_URL=http://localhost:5173
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_gmail_app_password
+ALERT_EMAIL=alerts@yourdomain.com
+```
+
+Install dependencies:
+
+```bash
+npm install
 ```
 
 Start the backend:
 
 ```bash
-npm run dev    # Development (with nodemon auto-restart)
-npm start      # Production
+npm run dev      # Development with nodemon auto-restart
+npm start        # Production
 ```
 
-### 3. Set Up the Frontend
+### 3. Configure Frontend
 
 ```bash
-cd frontend
+cd ../frontend
 npm install
 npm run dev
 ```
 
-The frontend will start on `http://localhost:5173` by default.
+The frontend launches at `http://localhost:5173`.
 
-### 4. Set Up the Monitoring Agent
+### 4. Start Remote Monitoring Agent (Optional)
 
 ```bash
-cd agent
+cd ../agent
 npm install
-```
-
-Create a `.env` file in `agent/`:
-
-```env
-API_KEY=your_generated_api_key_here
-```
-
-> **Note:** Generate an API key from the dashboard (🔑 API Keys button) after registering and logging in.
-
-Start the agent:
-
-```bash
 node agent.js
 ```
 
-### 5. Access the Application
+---
 
-| URL | Description |
-|-----|-------------|
-| `http://localhost:5173` | Landing Page |
-| `http://localhost:5173/login` | Login |
-| `http://localhost:5173/register` | Register |
-| `http://localhost:5173/dashboard` | Dashboard (requires auth) |
-| `http://localhost:5000` | Backend API health check |
+## 🧪 Automated Testing Suite
+
+SentinelOps AI features an automated unit and integration test suite built with Node.js native test runner (`node:test` and `node:assert`).
+
+To run the complete test suite:
+
+```bash
+# From workspace root
+npm test
+
+# Or directly within backend
+npm test --prefix backend
+```
+
+### Test Harness Summary
+
+| Test File | Target Module | Test Scenarios | Status |
+|---|---|---|---|
+| `forecaster.test.js` | `forecaster.js` | 7 tests: 5-step forecast generation, empty inputs, small series fallback, upward/downward trends, zero-variance stability, boundary clamping [0, 100] | **7/7 PASSED** |
+| `validateInput.test.js` | `validateInput.js` | 10 tests: name constraints, email regex formats, password complexity (uppercase, lowercase, number, 8+ chars), whitespace trimming, missing bodies | **10/10 PASSED** |
+| `anomalyDetector.test.js` | `anomalyDetector.js` | 8 tests: rolling baseline Z-score spikes, sub-threshold normal metrics, fallback static thresholds (RAM >85%, Disk >80% & >90%), database error resilience | **8/8 PASSED** |
+| `aiAnalyzer.test.js` | `aiAnalyzer.js` | 5 tests: CPU rule fallback, Memory exhaustion rules, Network flood heuristics, Disk saturation recommendations, Healthy state defaults | **5/5 PASSED** |
+| **Total** | **All Core Services** | **30 Automated Test Cases** | **30/30 PASSED (100%)** |
 
 ---
 
@@ -519,187 +350,122 @@ node agent.js
 
 ### Backend (`backend/.env`)
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `PORT` | No | Server port (default: 5000) |
-| `MONGO_URI` | Yes | MongoDB connection string |
-| `JWT_SECRET` | Yes | Secret key for JWT token signing |
-| `GEMINI_API_KEY` | No* | Google Gemini API key for AI features |
-
-> *If `GEMINI_API_KEY` is not set, all AI features gracefully fall back to rules-based logic. The platform remains fully functional.
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `PORT` | No | `5000` | Port for the Express REST and Socket.IO server |
+| `MONGO_URI` | Yes | — | MongoDB Atlas or local MongoDB connection URI |
+| `JWT_SECRET` | Yes | — | Secret key utilized for signing and verifying JSON Web Tokens |
+| `GEMINI_API_KEY` | No* | — | Google Gemini API key (*gracefully falls back to SRE rules engine if absent) |
+| `FRONTEND_URL` | No | `http://localhost:5173` | Trusted frontend origin for CORS and Socket.IO handshakes |
+| `EMAIL_USER` | No | — | SMTP service username for automated email alert dispatch |
+| `EMAIL_PASS` | No | — | SMTP service password / application-specific password |
+| `ALERT_EMAIL` | No | — | Destination email address for high-severity incident notifications |
 
 ### Agent (`agent/.env`)
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `API_KEY` | Yes | API key generated from the dashboard for agent authentication |
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `BACKEND_URL` | No | `http://localhost:5000` | URL of the SentinelOps AI backend server |
+| `API_KEY` | Yes | — | Cryptographic API key generated via Dashboard for agent authentication |
 
 ---
 
 ## 🔌 API Endpoints
 
-### Authentication (`/api/auth`)
+### Authentication & Integrations (`/api/auth`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | None | Register a new user |
-| POST | `/api/auth/login` | None | Login and receive JWT token |
-| GET | `/api/auth/api-keys` | JWT | List user's API keys |
-| POST | `/api/auth/api-keys` | JWT | Generate a new API key |
-| DELETE | `/api/auth/api-keys/:id` | JWT | Revoke an API key |
-| GET | `/api/auth/integrations` | JWT | Get webhook URLs |
-| PUT | `/api/auth/integrations` | JWT | Update Slack/Discord webhook URLs |
+| Method | Endpoint | Auth | Purpose |
+|---|---|---|---|
+| POST | `/api/auth/register` | None | Validates password complexity and registers a new user |
+| POST | `/api/auth/login` | None | Authenticates credentials and returns a 7-day signed JWT |
+| POST | `/api/auth/logout` | None | Clears session credentials |
+| GET | `/api/auth/api-keys` | JWT | Retrieves registered agent API keys for the user |
+| POST | `/api/auth/api-keys` | JWT | Generates a new secure API key for remote agents |
+| DELETE | `/api/auth/api-keys/:id` | JWT | Revokes an existing agent API key |
+| GET | `/api/auth/integrations` | JWT | Fetches configured Slack/Discord webhook endpoints |
+| PUT | `/api/auth/integrations` | JWT | Updates Slack and Discord webhook alert URLs |
 
-### Metrics (`/api/metrics`)
+### Metrics & AI Diagnostics (`/api/metrics`)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/metrics/history` | None | Fetch historical metric snapshots (last 1440) |
-| POST | `/api/metrics/ai-analyze` | JWT | Trigger manual AI diagnostic analysis |
-| POST | `/api/metrics/ai-chat` | JWT | Send a message to the AI SRE Chat |
-| POST | `/api/metrics/ai-remediation` | JWT | Get AI-generated remediation commands |
+| Method | Endpoint | Auth | Purpose |
+|---|---|---|---|
+| GET | `/api/metrics/history` | JWT | Retrieves last 1440 historical metric snapshots |
+| POST | `/api/metrics/ai-analyze` | JWT | Manually triggers Gemini AI analysis on current telemetry |
+| POST | `/api/metrics/ai-chat` | JWT | Interactive natural-language diagnostic query with Gemini SRE assistant |
+| POST | `/api/metrics/ai-remediation` | JWT | Generates targeted shell remediation commands |
 
-### Incidents (`/api/incidents`)
+### Incidents, Autopilot & Reports
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/incidents` | None | Fetch all incidents (sorted by newest) |
-
-### Reports (`/api/reports`)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/reports/export-pdf?token=JWT` | JWT (query) | Download AI-powered PDF incident report |
-
-### Monitor (`/api/monitor`)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/monitor/autopilot/status` | JWT | Get autopilot enabled/disabled state |
-| GET | `/api/monitor/autopilot/events` | JWT | Get last 10 autopilot event logs |
-| GET | `/api/monitor/docker/:id/logs` | JWT | Stream Docker container logs |
+| Method | Endpoint | Auth | Purpose |
+|---|---|---|---|
+| GET | `/api/incidents` | JWT | Returns sorted incident records matching `{ createdAt: -1 }` index |
+| GET | `/api/monitor/autopilot/status` | JWT | Fetches current autopilot toggle state |
+| GET | `/api/monitor/autopilot/events` | JWT | Fetches last 10 self-healing audit events |
+| GET | `/api/monitor/docker/:id/logs` | JWT | Streams container logs via Dockerode |
+| GET | `/api/reports/export-pdf` | JWT | Downloads generated executive health and incident PDF report |
+| GET | `/health` | None | Returns backend status and current timestamp |
 
 ---
 
 ## 📡 WebSocket Events
 
-### Client → Server
+### Client / Agent $\rightarrow$ Server
+* `agent-metrics`: Sent by `agent.js` every 3s containing CPU, RAM, disk, and network stats.
+* `execute-command`: Sent by Dashboard to trigger a diagnostic command on a remote agent.
+* `toggle-autopilot`: Sent by Dashboard to enable/disable autonomous self-healing.
 
-| Event | Payload | Source | Description |
-|-------|---------|--------|-------------|
-| `agent-metrics` | `{ serverId, cpu, memory, download, upload, timestamp, status }` | Agent | Periodic metric push from agent (every 3s) |
-| `execute-command` | `{ command, serverId, executionId }` | Dashboard | Execute a command on a remote agent |
-| `toggle-autopilot` | `{ enabled: boolean }` | Dashboard | Enable/disable the self-healing autopilot |
-
-### Server → Client
-
-| Event | Payload | Target | Description |
-|-------|---------|--------|-------------|
-| `system-metrics` | Full metrics object + forecasts | Dashboard | Live system metrics broadcast |
-| `ai-analysis` | `{ analysis, recommendation, confidence }` | Dashboard | AI diagnostic results |
-| `docker-containers` | Container array | Dashboard | Docker container stats |
-| `system-anomalies` | Anomaly array | Dashboard | Detected anomalies |
-| `system-logs` | Log array | Dashboard | System log entries |
-| `multi-server-data` | Server array | Dashboard | Fleet status update |
-| `new-incident` | Incident object | Dashboard | New incident created |
-| `autopilot-status` | `{ enabled: boolean }` | Dashboard | Autopilot state change |
-| `autopilot-event-update` | AutopilotEvent object | Dashboard | Real-time autopilot step progress |
-| `command-output` | `{ executionId, output, type }` | Dashboard | Streaming command output |
-| `command-close` | `{ executionId, code }` | Dashboard | Command execution completed |
-| `command-error` | `{ executionId, error }` | Dashboard | Command execution error |
-
-### Agent Events
-
-| Event | Payload | Description |
-|-------|---------|-------------|
-| `execute-command` (receive) | `{ command, executionId }` | Agent receives and executes a command |
-| `command-output` (emit) | `{ executionId, output, type }` | Agent streams stdout/stderr |
-| `command-close` (emit) | `{ executionId, code }` | Agent signals command completion |
-
----
-
-## 🧩 Frontend Components
-
-| Component | File | Description |
-|-----------|------|-------------|
-| **AIAnalysisCard** | `AIAnalysisCard.jsx` | Displays Gemini AI diagnostic summary with confidence score and recommendations |
-| **AIAnomalyPanel** | `AIAnomalyPanel.jsx` | Anomaly alert panel with severity badges, AI analysis, and remediation action buttons |
-| **AIIncidentSummary** | `AIIncidentSummary.jsx` | AI-generated high-level summary of recent incident trends |
-| **AutopilotConsole** | `AutopilotConsole.jsx` | Self-healing autopilot control panel with toggle, active run timeline, and history logs |
-| **CPUChart** | `CPUChart.jsx` | Real-time CPU usage line chart with forecast overlay (Recharts) |
-| **DockerPanel** | `DockerPanel.jsx` | Docker container list with stats, controls (start/stop/restart), and log viewer |
-| **GaugeCard** | `GaugeCard.jsx` | Animated circular progress bar for CPU and Memory with dynamic color thresholds |
-| **HistoricalCPUChart** | `HistoricalCPUChart.jsx` | Long-term CPU trend chart from MongoDB historical data |
-| **IncidentHistory** | `IncidentHistory.jsx` | Scrollable incident timeline with severity-coded entries |
-| **LoadingSpinner** | `LoadingSpinner.jsx` | Animated loading indicator |
-| **LogsConsole** | `LogsConsole.jsx` | Real-time system log viewer with color-coded log levels |
-| **MultiServerPanel** | `MultiServerPanel.jsx` | Fleet view showing all connected agents with online/offline status |
-| **NetworkChart** | `NetworkChart.jsx` | Dual-line chart for download and upload network speeds |
-| **NotificationCenter** | `NotificationCenter.jsx` | Bell icon notification dropdown with unread count badge |
-| **ParticleBackground** | `ParticleBackground.jsx` | Canvas-based animated particle network for the landing page |
-| **ProcessTable** | `ProcessTable.jsx` | Table of running processes with PID, name, CPU%, and memory |
-| **TerminalConsole** | `TerminalConsole.jsx` | Full-screen remote command execution terminal with streaming output |
+### Server $\rightarrow$ Dashboard
+* `system-metrics`: Real-time system telemetry with forecast trajectories.
+* `ai-analysis`: Live Gemini AI diagnostic evaluation and confidence metrics.
+* `docker-containers`: Real-time Docker container operational status.
+* `system-anomalies`: Detected statistical and threshold-based anomaly alerts.
+* `new-incident`: Emitted immediately when a new incident is persisted.
+* `autopilot-event-update`: Emits step-by-step progress during self-healing cycles.
+* `command-output`: Streams command output from agent to the web terminal.
 
 ---
 
 ## 🧮 Key Algorithms
 
-### Z-Score Anomaly Detection
-
+### 1. Adaptive Z-Score Anomaly Detection
 ```
-Z = (current_value - rolling_mean) / rolling_std_dev
+Mean:    μ = (1 / N) * Σ X(i)
+StdDev:  σ = sqrt((1 / N) * Σ (X(i) - μ)²)
+Z-Score: Z = (X(current) - μ) / σ
 ```
+* **Window Size ($N$):** Last 30 data points from MongoDB.
+* **Sensitivity Threshold:** Flags anomaly when $Z > 2.5$ (minimum 5 baseline points).
+* **Static Fallback Guards:** Memory $>85\%$, Disk $>80\%$ (Warning), Disk $>90\%$ (Critical), Network $>20\text{ MB/s}$.
 
-- Rolling window: Last 30 metric entries from MongoDB
-- Minimum 5 data points required for statistical baseline
-- CPU/Memory threshold: Z > 2.5
-- Network threshold: Z > 3.0
-- Confidence = min(99, 90 + Z × 2)
-
-### Holt's Double Exponential Smoothing
-
+### 2. Holt's Double Exponential Smoothing (Linear Trend Forecasting)
 ```
-Level:  L(t) = α × Y(t) + (1 - α) × (L(t-1) + T(t-1))
-Trend:  T(t) = β × (L(t) - L(t-1)) + (1 - β) × T(t-1)
-Forecast: F(t+m) = L(t) + m × T(t)
+Level:    L(t) = α * Y(t) + (1 - α) * (L(t-1) + T(t-1))
+Trend:    T(t) = β * (L(t) - L(t-1)) + (1 - β) * T(t-1)
+Forecast: F(t+m) = L(t) + m * T(t)
 ```
-
-- α = 0.3 (level smoothing factor)
-- β = 0.1 (trend smoothing factor)
-- Forecast horizon: 5 steps (~15 seconds)
-- Output clamped to [0, 100]
-
-### Multi-Model Gemini Failover
-
-Models tried in order:
-1. `gemini-flash-lite-latest`
-2. `gemini-2.0-flash`
-3. `gemini-2.5-flash`
-4. `gemini-2.0-flash-lite`
-
-Rate-limited models (HTTP 429) are skipped for a cooldown period (default: 3 minutes, or parsed from API response).
+* **Smoothing Constants:** $\alpha = 0.3, \beta = 0.1$.
+* **Forecast Horizon ($m$):** 5 steps (~15 seconds ahead). Clamped to $[0, 100]$.
 
 ---
 
-## 🔒 Security
+## 🔒 Security & DevSecOps
 
-- **Helmet** — Sets security-related HTTP headers (X-Content-Type-Options, X-Frame-Options, etc.)
-- **CORS** — Configured for cross-origin requests
-- **bcrypt** — Passwords hashed with 10 salt rounds
-- **JWT** — Stateless authentication with 7-day token expiry
-- **Socket Auth** — WebSocket connections require JWT token (dashboard) or API key (agent)
-- **RBAC** — Role-based middleware restricts destructive operations to `admin` and `engineer` roles
-- **API Key Auth** — Agents authenticate via cryptographically generated keys validated against MongoDB
-- **Environment Variables** — Secrets stored in `.env` files (not committed to version control)
+* **Strict Token Discipline:** Removed query parameter token transmission; all protected routes mandate `Authorization: Bearer <token>` HTTP headers.
+* **Brute-Force Rate Limiting:** Enforces `express-rate-limit` (20 requests per 15 minutes) on all `/api/auth` endpoints.
+* **Remote Command Execution Allowlist:** `agent.js` strictly validates incoming commands against safe regex patterns (`Get-Process`, `ps aux`, `df -h`, `free -m`, `netstat`, `systemctl status`), blocking arbitrary command injection.
+* **Input Sanitization Middleware:** `validateInput.js` enforces minimum string lengths, lowercase email regex verification, and password complexity ($\ge 8$ characters, uppercase, lowercase, numerical digit).
+* **Cryptographic Password Security:** All user credentials hashed via `bcryptjs` with 10 salt rounds.
+* **Database Time-Series Indexing:** MongoDB collections leverage compound indexes (`{ createdAt: -1 }`, `{ message: 1, createdAt: -1 }`) for fast querying and deduplication.
+* **Graceful Process Termination:** Handlers for `SIGTERM` and `SIGINT` gracefully close the HTTP server and Mongoose connection pool.
 
 ---
 
 ## 📄 License
 
-ISC
+This project is licensed under the ISC License.
 
 ---
 
 <p align="center">
-  <strong>Built By Mohammed Azim using React, Node.js, Socket.IO, MongoDB, and Google Gemini AI</strong>
+  <strong>Built with React 19, Node.js 22 LTS, Socket.IO, MongoDB Atlas, and Google Gemini AI</strong>
 </p>

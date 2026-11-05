@@ -1,14 +1,14 @@
 import { io } from "socket.io-client";
 import { API_BASE_URL } from "../config";
 
-const socket = io(
-  API_BASE_URL,
-  {
-    transports: ["websocket"],
-    auth: {
+const socket = io(API_BASE_URL, {
+  transports: ["websocket"],
+  autoConnect: true,
+  auth: (cb) => {
+    cb({
       token: localStorage.getItem("token"),
-    },
-  }
-);
+    });
+  },
+});
 
-export default socket;
+export default socket;

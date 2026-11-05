@@ -11,8 +11,6 @@ const protect = async (req, res, next) => {
       authHeader.startsWith("Bearer ")
     ) {
       token = authHeader.split(" ")[1];
-    } else if (req.query.token) {
-      token = req.query.token;
     }
 
     if (token) {

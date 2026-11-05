@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const axios = require("axios");
+const { sendAlertEmail } = require("../services/emailService");
 
 const sendAlert = async (anomaly) => {
   try {
@@ -10,71 +11,83 @@ const sendAlert = async (anomaly) => {
       ]
     });
 
-    if (users.length === 0) return;
+    if (users && users.length > 0) {
+      for (const user of users) {
+        // Send Slack Alert
+        if (user.slackWebhookUrl) {
+          try {
+            const slackPayload = {
+              attachments: [
+                {
+                  color: anomaly.severity === "HIGH" ? "#ef4444" : "#f59e0b",
+                  title: `🚨 ${anomaly.type} Alert - ${anomaly.severity} Severity`,
+                  text: anomaly.message,
+                  fields: [
+                    {
+                      title: "Status",
+                      value: anomaly.severity,
+                      short: true
+                    },
+                    {
+                      title: "Time",
+                      value: new Date().toLocaleString(),
+                      short: true
+                    }
+                  ],
+                  footer: "SentinelOps AI Monitor"
+                }
+              ]
+            };
+            await axios.post(user.slackWebhookUrl, slackPayload);
+          } catch (err) {
+            console.error("Slack alert failed:", err.message);
+          }
+        }
 
-    for (const user of users) {
-      // Send Slack Alert
-      if (user.slackWebhookUrl) {
-        try {
-          const slackPayload = {
-            attachments: [
-              {
-                color: anomaly.severity === "HIGH" ? "#ef4444" : "#f59e0b",
-                title: `🚨 ${anomaly.type} Alert - ${anomaly.severity} Severity`,
-                text: anomaly.message,
-                fields: [
-                  {
-                    title: "Status",
-                    value: anomaly.severity,
-                    short: true
-                  },
-                  {
-                    title: "Time",
-                    value: new Date().toLocaleString(),
-                    short: true
+        // Send Discord Alert
+        if (user.discordWebhookUrl) {
+          try {
+            const discordPayload = {
+              embeds: [
+                {
+                  title: `🚨 ${anomaly.type} Alert - ${anomaly.severity} Severity`,
+                  description: anomaly.message,
+                  color: anomaly.severity === "HIGH" ? 15685444 : 16097035, // Hex codes in decimal representation
+                  fields: [
+                    {
+                      name: "Severity",
+                      value: anomaly.severity,
+                      inline: true
+                    },
+                    {
+                      name: "Timestamp",
+                      value: new Date().toLocaleString(),
+                      inline: true
+                    }
+                  ],
+                  footer: {
+                    text: "SentinelOps AI Monitoring Engine"
                   }
-                ],
-                footer: "SentinelOps AI Monitor"
-              }
-            ]
-          };
-          await axios.post(user.slackWebhookUrl, slackPayload);
-        } catch (err) {
-          console.error("Slack alert failed:", err.message);
+                }
+              ]
+            };
+            await axios.post(user.discordWebhookUrl, discordPayload);
+          } catch (err) {
+            console.error("Discord alert failed:", err.message);
+          }
         }
       }
+    }
 
-      // Send Discord Alert
-      if (user.discordWebhookUrl) {
-        try {
-          const discordPayload = {
-            embeds: [
-              {
-                title: `🚨 ${anomaly.type} Alert - ${anomaly.severity} Severity`,
-                description: anomaly.message,
-                color: anomaly.severity === "HIGH" ? 15685444 : 16097035, // Hex codes in decimal representation
-                fields: [
-                  {
-                    name: "Severity",
-                    value: anomaly.severity,
-                    inline: true
-                  },
-                  {
-                    name: "Timestamp",
-                    value: new Date().toLocaleString(),
-                    inline: true
-                  }
-                ],
-                footer: {
-                  text: "SentinelOps AI Monitoring Engine"
-                }
-              }
-            ]
-          };
-          await axios.post(user.discordWebhookUrl, discordPayload);
-        } catch (err) {
-          console.error("Discord alert failed:", err.message);
-        }
+    // Send Email Alert (if email credentials configured)
+    if (process.env.EMAIL_USER && process.env.ALERT_EMAIL) {
+      try {
+        await sendAlertEmail(
+          `🚨 ${anomaly.type} Alert - ${anomaly.severity} Severity`,
+          `${anomaly.message}\n\nTime: ${new Date().toLocaleString()}\nSeverity: ${anomaly.severity}\nRecommendation: ${anomaly.recommendation || "N/A"}`
+        );
+      } catch (err) {
+        console.error("Email alert failed:", err.message);
       }
     }
   } catch (error) {
