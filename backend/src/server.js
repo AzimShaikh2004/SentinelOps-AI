@@ -36,13 +36,21 @@ const reportRoutes = require("./routes/reportRoutes");
 connectDB();
 
 const app = express();
+app.set("trust proxy", 1);
 const server = http.createServer(app);
 
-const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
+const allowedOrigins = [
+  "https://sentinel-ops-ai.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, "") : null,
+].filter(Boolean);
 
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigin,
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
     credentials: true,
   },
 });
@@ -75,23 +83,16 @@ io.use(async (socket, next) => {
 
 // Security & utility middlewares
 app.use(cors({
-  origin: allowedOrigin,
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
   credentials: true,
 }));
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 
-// Rate limiter for authentication endpoints to prevent brute-force attacks
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // max 20 requests per window
-  message: { message: "Too many authentication requests. Please try again after 15 minutes." },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/protected", protectedRoutes);
 app.use("/api/monitor", monitorRoutes);
 app.use("/api/incidents", incidentRoutes);

@@ -1,4 +1,5 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 
 const {
   registerUser,
@@ -15,8 +16,17 @@ const { validateRegister, validateLogin } = require("../middleware/validateInput
 
 const router = express.Router();
 
-router.post("/register", validateRegister, registerUser);
-router.post("/login", validateLogin, loginUser);
+// Specific rate limiter on login and registration endpoints to prevent brute-force attacks
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { message: "Too many authentication attempts. Please try again after 15 minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+router.post("/register", authLimiter, validateRegister, registerUser);
+router.post("/login", authLimiter, validateLogin, loginUser);
 
 router.post("/logout", protect, (req, res) => {
   res.status(200).json({ message: "Logged out successfully. Please discard your token client-side." });

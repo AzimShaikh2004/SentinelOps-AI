@@ -114,15 +114,27 @@ const Dashboard = () => {
 
   const generateApiKey = async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please log in again to generate keys");
+        return;
+      }
       const response = await fetch(`${API_BASE_URL}/api/auth/api-keys`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
-        body: JSON.stringify({ description: newKeyDesc }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ description: newKeyDesc || "Agent Key" }),
       });
-      const data = await response.json();
-      if (response.ok) { toast.success("API Key generated!"); setNewKeyDesc(""); fetchApiKeys(); }
-      else toast.error(data.message || "Failed");
-    } catch { toast.error("Failed to generate key"); }
+      const data = await response.json().catch(() => ({}));
+      if (response.ok) {
+        toast.success("API Key generated!");
+        setNewKeyDesc("");
+        fetchApiKeys();
+      } else {
+        toast.error(data.message || `Failed to generate key (Status: ${response.status})`);
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to generate key");
+    }
   };
 
   const handleExportPDF = async () => {

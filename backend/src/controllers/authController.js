@@ -108,12 +108,16 @@ const loginUser = async (req, res) => {
 const generateApiKey = async (req, res) => {
   try {
     const { description } = req.body;
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ message: "Invalid session. Please log in again." });
+    }
     const rawKey = `sentinel_${crypto.randomBytes(24).toString("hex")}`;
 
     const apiKey = await ApiKey.create({
       key: rawKey,
       description: description || "Default Agent Key",
-      user: req.user.id,
+      user: userId,
     });
 
     res.status(201).json({
@@ -128,14 +132,18 @@ const generateApiKey = async (req, res) => {
   } catch (error) {
     console.error("API Key generation error:", error.message);
     res.status(500).json({
-      message: "Failed to generate API key.",
+      message: "Failed to generate API key: " + error.message,
     });
   }
 };
 
 const getApiKeys = async (req, res) => {
   try {
-    const apiKeys = await ApiKey.find({ user: req.user.id }).sort({ createdAt: -1 });
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ message: "Invalid session. Please log in again." });
+    }
+    const apiKeys = await ApiKey.find({ user: userId }).sort({ createdAt: -1 });
     res.status(200).json(apiKeys);
   } catch (error) {
     console.error("Fetch API Keys error:", error.message);
@@ -147,7 +155,8 @@ const getApiKeys = async (req, res) => {
 
 const deleteApiKey = async (req, res) => {
   try {
-    const apiKey = await ApiKey.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    const userId = req.user?.id || req.user?._id;
+    const apiKey = await ApiKey.findOneAndDelete({ _id: req.params.id, user: userId });
     if (!apiKey) {
       return res.status(404).json({ message: "API key not found" });
     }
