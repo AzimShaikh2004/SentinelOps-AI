@@ -1,4 +1,6 @@
 const IncidentHistory = ({ incidents }) => {
+  const safeIncidents = Array.isArray(incidents) ? incidents : [];
+
   const getSeverityConfig = (severity) => {
     switch (severity) {
       case "HIGH": return { color: "#ef4444", bg: "rgba(239, 68, 68, 0.08)", label: "CRITICAL" };
@@ -43,7 +45,7 @@ const IncidentHistory = ({ incidents }) => {
           letterSpacing: "0.05em",
         }}>
           <span style={{ fontSize: "11px" }}>⚡</span>
-          {incidents.length} INCIDENTS
+          {safeIncidents.length} INCIDENTS
         </div>
       </div>
 
@@ -69,7 +71,7 @@ const IncidentHistory = ({ incidents }) => {
             </tr>
           </thead>
           <tbody>
-            {incidents.map((incident, index) => {
+            {safeIncidents.map((incident, index) => {
               const config = getSeverityConfig(incident.severity);
               return (
                 <tr

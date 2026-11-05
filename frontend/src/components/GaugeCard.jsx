@@ -36,6 +36,7 @@ const GaugeCard = ({ title, value, color, icon }) => {
 
   const activeColor = color || getStatusColor();
   const glowColor = `${activeColor}40`;
+  const safeId = String(title || "gauge").replace(/[^a-zA-Z0-9]/g, "-");
 
   return (
     <div
@@ -100,11 +101,11 @@ const GaugeCard = ({ title, value, color, icon }) => {
           />
           {/* Gradient definition */}
           <defs>
-            <linearGradient id={`gauge-grad-${title}`} x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id={`gauge-grad-${safeId}`} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor={activeColor} stopOpacity="0.5" />
               <stop offset="100%" stopColor={activeColor} stopOpacity="1" />
             </linearGradient>
-            <filter id={`glow-${title}`}>
+            <filter id={`glow-${safeId}`}>
               <feGaussianBlur stdDeviation="3" result="coloredBlur" />
               <feMerge>
                 <feMergeNode in="coloredBlur" />
@@ -118,12 +119,12 @@ const GaugeCard = ({ title, value, color, icon }) => {
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke={`url(#gauge-grad-${title})`}
+            stroke={`url(#gauge-grad-${safeId})`}
             strokeWidth={strokeWidth}
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             strokeLinecap="round"
-            filter={`url(#glow-${title})`}
+            filter={`url(#glow-${safeId})`}
             style={{ transition: "stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }}
           />
         </svg>

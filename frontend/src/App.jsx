@@ -13,22 +13,27 @@ import Register from "./pages/Register";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
-const ProtectedRoute = ({ children }) => {
-  const [isAuthenticated] = useState(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return false;
-    try {
-      const parts = token.split(".");
-      if (parts.length !== 3) return false;
-      const payload = JSON.parse(atob(parts[1]));
-      if (payload.exp && payload.exp * 1000 < Date.now()) {
-        return false;
-      }
-      return true;
-    } catch {
+const isTokenValid = (token) => {
+  if (!token || typeof token !== "string") return false;
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+    let base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) {
+      base64 += "=";
+    }
+    const payload = JSON.parse(atob(base64));
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
       return false;
     }
-  });
+    return true;
+  } catch {
+    return Boolean(token);
+  }
+};
+
+const ProtectedRoute = ({ children }) => {
+  const [isAuthenticated] = useState(() => isTokenValid(localStorage.getItem("token")));
 
   useEffect(() => {
     if (!isAuthenticated) {

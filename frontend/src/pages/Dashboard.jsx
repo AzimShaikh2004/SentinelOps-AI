@@ -198,17 +198,32 @@ const Dashboard = () => {
     initApiKeys();
     initIntegrations();
     const fetchIncidents = async () => {
-      try { const response = await fetch(`${API_BASE_URL}/api/incidents`); const data = await response.json(); setIncidents(data); }
-      catch (error) { console.log(error); }
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE_URL}/api/incidents`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        const data = await response.json();
+        if (Array.isArray(data)) setIncidents(data);
+      } catch (error) { console.log(error); }
     };
     fetchIncidents();
     const incidentInterval = setInterval(fetchIncidents, 5000);
+
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/metrics/history`);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_BASE_URL}/api/metrics/history`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         const data = await response.json();
-        const formatted = data.reverse().map((metric) => ({ cpuUsage: metric.cpuUsage, time: new Date(metric.createdAt).toLocaleTimeString() }));
-        setHistoricalMetrics(formatted);
+        if (Array.isArray(data)) {
+          const formatted = data.reverse().map((metric) => ({
+            cpuUsage: metric.cpuUsage,
+            time: new Date(metric.createdAt).toLocaleTimeString(),
+          }));
+          setHistoricalMetrics(formatted);
+        }
       } catch (error) { console.log(error); }
     };
     fetchHistory();

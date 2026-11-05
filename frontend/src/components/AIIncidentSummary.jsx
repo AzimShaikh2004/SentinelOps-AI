@@ -1,9 +1,10 @@
 const AIIncidentSummary = ({ incidents = [] }) => {
-  const memoryCount = incidents.filter((i) => i.type === "MEMORY").length;
-  const cpuCount = incidents.filter((i) => i.type === "CPU").length;
-  const networkCount = incidents.filter((i) => i.type === "NETWORK").length;
-  const offlineCount = incidents.filter((i) => i.type === "SERVER_OFFLINE").length;
-  const total = incidents.length;
+  const safeIncidents = Array.isArray(incidents) ? incidents : [];
+  const memoryCount = safeIncidents.filter((i) => i.type === "MEMORY").length;
+  const cpuCount = safeIncidents.filter((i) => i.type === "CPU").length;
+  const networkCount = safeIncidents.filter((i) => i.type === "NETWORK").length;
+  const offlineCount = safeIncidents.filter((i) => i.type === "SERVER_OFFLINE").length;
+  const total = safeIncidents.length;
 
   let rootCause = "System operating normally.";
   let recommendation = "Continue monitoring.";
