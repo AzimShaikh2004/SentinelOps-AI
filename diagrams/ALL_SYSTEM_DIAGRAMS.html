@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelOps AI - System Analysis & Design Diagrams (Printable A4 Edition)</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* ===== PURE WHITE PRINT-OPTIMIZED STYLES ===== */
+    :root {
+      --bg: #ffffff;
+      --card-bg: #ffffff;
+      --border: #000000;
+      --border-subtle: #cbd5e1;
+      --text: #000000;
+      --text-muted: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #000000;
+      font-family: 'Inter', Arial, sans-serif;
+      line-height: 1.5;
+      padding: 20px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .no-print-bar {
+      background: #f8fafc;
+      border: 2px solid #0f172a;
+      border-radius: 12px;
+      padding: 16px 24px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid #000;
+      background: #000;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #333;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: #000;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 3px double #000000;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #000000;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .diagram-card {
+      background: #ffffff;
+      border: 1.5px solid #000000;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 40px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .diagram-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1.5px solid #000000;
+    }
+
+    .diagram-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #000000;
+      text-transform: uppercase;
+    }
+
+    .diagram-section {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #000000;
+      border: 1px solid #000000;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #f1f5f9;
+    }
+
+    .diagram-desc {
+      color: #334155;
+      font-size: 12px;
+      font-style: italic;
+      margin-bottom: 18px;
+    }
+
+    .mermaid-box {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 20px;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid {
+      width: 100%;
+      background: #ffffff;
+    }
+
+    /* Target specific Mermaid SVG elements for crisp pure black outlines */
+    .mermaid svg {
+      font-family: 'Inter', Arial, sans-serif !important;
+    }
+    .mermaid .node rect,
+    .mermaid .node circle,
+    .mermaid .node polygon {
+      stroke: #000000 !important;
+      stroke-width: 1.5px !important;
+      fill: #ffffff !important;
+    }
+    .mermaid .cluster rect {
+      stroke: #000000 !important;
+      stroke-dasharray: 4,4 !important;
+      stroke-width: 1.2px !important;
+      fill: #f8fafc !important;
+    }
+    .mermaid .edgePath path {
+      stroke: #000000 !important;
+      stroke-width: 1.5px !important;
+    }
+    .mermaid .edgeLabel {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      font-weight: 600 !important;
+    }
+    .mermaid text {
+      fill: #000000 !important;
+      font-weight: 600 !important;
+    }
+
+    /* Print Specific Rules */
+    @media print {
+      body {
+        padding: 0;
+        margin: 0;
+        background: #fff;
+      }
+      .no-print-bar {
+        display: none !important;
+      }
+      .diagram-card {
+        border: 1px solid #000;
+        box-shadow: none;
+        margin-bottom: 20px;
+        page-break-after: always;
+        break-after: page;
+      }
+      .diagram-card:last-child {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+      .mermaid-box {
+        border: none;
+        padding: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- No Print Action Bar -->
+    <div class="no-print-bar">
+      <div>
+        <strong style="font-size: 15px; color: #000;">📄 Print-Ready High Contrast Edition (Pure White Background)</strong>
+        <p style="font-size: 12px; color: #475569; margin-top: 2px;">
+          Optimized for single-sided black & white laser / inkjet printing and spiral-bound submission.
+        </p>
+      </div>
+      <div class="btn-group">
+        <button class="btn" onclick="window.print()">🖨️ Print All (A4)</button>
+        <button class="btn btn-secondary" onclick="toggleTheme()">🌓 Invert Theme</button>
+      </div>
+    </div>
+
+    <header>
+      <h1>SentinelOps AI — System Design & Analysis Diagrams</h1>
+      <p class="subtitle">
+        MCA Semester III Capstone Project • Specialization: Development – Web Application<br>
+        Dnyaan Prasad Global University, School of Management & Research, Pune
+      </p>
+    </header>
+
+    <!-- 1. ARCHITECTURE -->
+    <div class="diagram-card" id="card-1">
+      <div class="diagram-header">
+        <div class="diagram-title">Figure 2.1: System Architecture Design</div>
+        <div class="diagram-section">Section 2.3</div>
+      </div>
+      <p class="diagram-desc">Decoupled 4-tier distributed cloud-native architecture connecting Browser Presentation, Central Express/Socket.IO Gateway, Remote Host Monitoring Daemons, and MongoDB Atlas.</p>
+      <div class="mermaid-box">
+        <div class="mermaid">
+flowchart TD
+    subgraph Client["1. Presentation Tier (React 19 SPA)"]
+        UI["React 19 Dashboard\n(Vite + Recharts + Tailwind)"]
+        TerminalUI["Terminal Console\n& Autopilot Switch"]
+        AuthUI["JWT Session Store\n(LocalStorage)"]
+    end
+
+    subgraph Server["2. Application Tier (Node.js 22 LTS / Express 5)"]
+        GW["Socket.IO Server\n(Port 5000 / WebSocket)"]
+        REST["Express REST API\n(Rate-Limited / Protected)"]
+        AD["Adaptive Anomaly Detector\n(Rolling Z-Score > 2.5)"]
+        FC["Holt's DES Forecaster\n(alpha=0.3, beta=0.1, 5-Step)"]
+        Auto["Autopilot Controller\n(5-Phase Self-Healing)"]
+        DockerSvc["Dockerode Service\n(Container Engine API)"]
+        Notifier["Alert Dispatcher\n(Slack / Discord / SMTP)"]
+    end
+
+    subgraph Remote["3. Distributed Host Tier (agent.js)"]
+        Agent["Monitoring Daemon\n(Systeminformation)"]
+        Exec["Safe Shell Execution\n(Regex Allowlist)"]
+    end
+
+    subgraph Intelligence["4. Cognitive Tier (Cloud LLM)"]
+        Gemini["Google Gemini 2.5 Flash\n(Multi-Model Failover)"]
+        RuleFallback["Deterministic SRE\nRule Fallback Engine"]
+    end
+
+    subgraph Storage["5. Persistence Tier (MongoDB Atlas)"]
+        DB[("MongoDB Cloud Cluster")]
+        Users[("Users Collection")]
+        Metrics[("SystemMetrics")]
+        Incidents[("Incidents Collection")]
+        Events[("AutopilotEvents")]
+    end
+
+    UI <-->|WebSocket Stream / Auth Token| GW
+    UI <-->|HTTPS REST API / Bearer Token| REST
+    Agent <-->|WebSocket Metric Push / API Key| GW
+    GW --> AD
+    AD --> FC
+    AD --> Auto
+    Auto <-->|Prompt / Diagnostics| Gemini
+    Auto -.->|Fallback on 429| RuleFallback
+    Auto -->|Safe Command Dispatch| Exec
+    REST --> DB
+    GW --> DB
+    DockerSvc <--> Docker[("Docker Daemon / Socket")]
+    Auto --> Notifier
+    Notifier --> Webhooks["Slack / Discord Webhooks & Email"]
+    DB --> Users
+    DB --> Metrics
+    DB --> Incidents
+    DB --> Events
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ERD -->
+    <div class="diagram-card" id="card-2">
+      <div class="diagram-header">
+        <div class="diagram-title">Figure 2.2: Entity Relationship Diagram (ERD)</div>
+        <div class="diagram-section">Section 2.4</div>
+      </div>
+      <p class="diagram-desc">Relational mapping across MongoDB document collections showing 1:N references, compound descending indexes, and enum attributes.</p>
+      <div class="mermaid-box">
+        <div class="mermaid">
+erDiagram
+    USER ||--o{ API_KEY : owns
+    USER ||--o{ INCIDENT : reviews
+    USER ||--o{ AUTOPILOT_EVENT : triggers
+    
+    USER {
+        string id PK
+        string name "User full name"
+        string email "Unique email address"
+        string password "Bcrypt hashed password"
+        string role "Admin, Engineer, or Viewer"
+        string slackWebhookUrl "Optional Slack alert endpoint"
+        string discordWebhookUrl "Optional Discord alert endpoint"
+        date createdAt "Automatic Mongoose timestamp"
+    }
+
+    API_KEY {
+        string id PK
+        string key "Prefixed API token"
+        string description "Friendly node label"
+        string userId FK "Reference to owning User"
+        date createdAt "Issuance timestamp"
+    }
+
+    SYSTEM_METRIC {
+        string id PK
+        float cpuUsage "CPU load percentage"
+        float memoryUsage "Used physical RAM in MB"
+        float freeMemory "Free RAM in GB"
+        float diskUsage "Storage utilisation percentage"
+        float downloadSpeed "Inbound network in MBps"
+        float uploadSpeed "Outbound network in MBps"
+        string hostname "Reporting server node ID"
+        date createdAt "Time-series descending index"
+    }
+
+    INCIDENT {
+        string id PK
+        string type "CPU, MEMORY, NETWORK, DISK"
+        string severity "HIGH, MEDIUM, or LOW"
+        string message "Descriptive anomaly summary"
+        string server "Node identifier"
+        date timestamp "Exact detection timestamp"
+        date createdAt "Compound index with message"
+    }
+
+    AUTOPILOT_EVENT {
+        string id PK
+        string serverId "Target agent node ID"
+        string anomalyType "CPU, MEMORY, DISK, NETWORK"
+        string diagnosisCommand "Generated diagnostic query"
+        string remediationAction "Applied corrective command"
+        string status "TRIGGERED, IN_PROGRESS, RESOLVED"
+        date createdAt "Event timestamp"
+    }
+      </div>
+      </div>
+    </div>
+
+    <!-- 3. CLASS DIAGRAM -->
+    <div class="diagram-card" id="card-3">
+      <div class="diagram-header">
+        <div class="diagram-title">Figure 2.3: Class Diagram</div>
+        <div class="diagram-section">Section 2.5</div>
+      </div>
+      <p class="diagram-desc">Object-oriented model of backend controllers, statistical algorithms, services, and middleware pipelines.</p>
+      <div class="mermaid-box">
+        <div class="mermaid">
+classDiagram
+    class AuthController {
+        +registerUser(req, res)
+        +loginUser(req, res)
+        +generateApiKey(req, res)
+        +getApiKeys(req, res)
+        +deleteApiKey(req, res)
+        +updateIntegrations(req, res)
+    }
+
+    class AnomalyDetector {
+        +detectAnomalies(metrics) Array
+        -getStats(values) Object
+        -rollingWindow: 30
+        -zScoreThreshold: 2.5
+    }
+
+    class Forecaster {
+        +forecastSeries(data, steps, alpha, beta) Array
+        -alpha: 0.3
+        -beta: 0.1
+        -horizon: 5
+    }
+
+    class AIAnalyzer {
+        +analyzeMetrics(metrics) Object
+        +generateRemediation(metrics, anomalies) String
+        -fallbackRules(metrics) Object
+    }
+
+    class GeminiHelper {
+        -models: Array
+        -cooldowns: Map
+        +generateWithFallback(prompt) String
+    }
+
+    class AutopilotController {
+        +isAutopilotRunning: Boolean
+        +cooldownMap: Map
+        +toggleAutopilot(enabled)
+        +runSelfHealingLoop(anomaly, io)
+    }
+
+    class MonitoringService {
+        +getSystemMetrics() Object
+        +getDiskUsage() Object
+        +getRunningProcesses() Array
+    }
+
+    class DockerService {
+        +getDockerContainers() Array
+        +streamContainerLogs(id) Stream
+    }
+
+    AuthController --> AuthMiddleware : enforces JWT
+    AutopilotController --> AnomalyDetector : queries anomalies
+    AutopilotController --> Forecaster : projects trends
+    AutopilotController --> AIAnalyzer : requests diagnostics
+    AIAnalyzer --> GeminiHelper : multi-model query
+    MonitoringService --> AnomalyDetector : feeds telemetry
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. USE CASE DIAGRAM -->
+    <div class="diagram-card" id="card-4">
+      <div class="diagram-header">
+        <div class="diagram-title">Figure 2.4: Use Case Diagram</div>
+        <div class="diagram-section">Section 2.6</div>
+      </div>
+      <p class="diagram-desc">Role-based access matrix linking four primary actors (Admin, DevOps Engineer, Viewer, Daemon) to functional platform capabilities.</p>
+      <div class="mermaid-box">
+        <div class="mermaid">
+flowchart LR
+    subgraph Actors["System Actors"]
+        Admin((Administrator))
+        Engineer((DevOps Engineer))
+        Viewer((Read-Only Viewer))
+        AgentDaemon((Remote Agent Daemon))
+    end
+
+    subgraph AuthCases["Authentication & Access"]
+        UC1["Register & Login (JWT)"]
+        UC2["Configure Slack/Discord Webhooks"]
+        UC3["Provision Agent API Keys"]
+    end
+
+    subgraph MonitoringCases["Monitoring & Intelligence"]
+        UC4["View Real-Time Dashboard"]
+        UC5["Inspect Forecasted Trajectories"]
+        UC6["Review Anomaly & Incident Log"]
+        UC7["Interact with Gemini SRE Chat"]
+        UC8["Export Executive PDF Reports"]
+    end
+
+    subgraph OperationsCases["Operations & Autopilot"]
+        UC9["Toggle Autopilot Self-Healing"]
+        UC10["Execute Safe Diagnostic Commands"]
+        UC11["Inspect Docker Container Logs"]
+        UC12["Push 3s Telemetry (agent-metrics)"]
+    end
+
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC3
+    Admin --> UC4
+    Admin --> UC5
+    Admin --> UC6
+    Admin --> UC7
+    Admin --> UC8
+    Admin --> UC9
+    Admin --> UC10
+    Admin --> UC11
+
+    Engineer --> UC1
+    Engineer --> UC4
+    Engineer --> UC5
+    Engineer --> UC6
+    Engineer --> UC7
+    Engineer --> UC8
+    Engineer --> UC10
+    Engineer --> UC11
+
+    Viewer --> UC1
+    Viewer --> UC4
+    Viewer --> UC5
+    Viewer --> UC6
+    Viewer --> UC8
+
+    AgentDaemon --> UC12
+    AgentDaemon --> UC10
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. ACTIVITY DIAGRAM -->
+    <div class="diagram-card" id="card-5">
+      <div class="diagram-header">
+        <div class="diagram-title">Figure 2.5: Activity Diagram: Telemetry & Anomaly Loop</div>
+        <div class="diagram-section">Section 2.7</div>
+      </div>
+      <p class="diagram-desc">Operational workflow for the global 3,000ms hardware polling loop, rolling statistical Z-score calculations, and alert triggers.</p>
+      <div class="mermaid-box">
+        <div class="mermaid">
+flowchart TD
+    Start(["Start Telemetry Loop Every 3,000ms"]) --> Collect["Sample Hardware: CPU, Memory, Disk, Network"]
+    Collect --> Processes["Query Top-10 CPU Processes"]
+    Processes --> Broadcast["Broadcast Live Metrics over Socket.IO"]
+    Broadcast --> CheckHistory{"Query last 30 snapshots from MongoDB"}
+    
+    CheckHistory -->|At least 5 samples| CalcZ["Calculate Mean and Standard Deviation"]
+    CheckHistory -->|Fewer than 5 samples| FallbackThresholds["Use Static Guard Thresholds"]
+    
+    CalcZ --> EvalZ{"Is Z-Score greater than 2.5?"}
+    FallbackThresholds --> EvalStatic{"CPU above 85% or RAM above 85%?"}
+    
+    EvalZ -->|Yes| FlagAnomaly["Construct Anomaly Incident Record"]
+    EvalZ -->|No| CheckDisk{"Disk above 80% or Net above 20 MBps?"}
+    EvalStatic -->|Yes| FlagAnomaly
+    EvalStatic -->|No| NormalState["System State Healthy"]
+    
+    CheckDisk -->|Yes| FlagAnomaly
+    CheckDisk -->|No| NormalState
+    
+    FlagAnomaly --> PersistDB["Save Incident to MongoDB with Index"]
+    FlagAnomaly --> DispatchAlerts["Dispatch Slack, Discord and Email Alerts"]
+    FlagAnomaly --> CheckAutopilot{"Autopilot Enabled and Not in Cooldown?"}
+    
+    CheckAutopilot -->|Yes| TriggerAutopilot["Trigger 5-Phase Autopilot Loop"]
+    CheckAutopilot -->|No or In Cooldown| EmitUI["Emit system-anomalies to Dashboard"]
+    
+    TriggerAutopilot --> EmitUI
+    NormalState --> Sleep["Wait for Next 3-Second Tick"]
+    EmitUI --> Sleep
+    Sleep --> Start
+      </div>
+      </div>
+    </div>
+
+    <!-- 6. SEQUENCE DIAGRAM -->
+    <div class="diagram-card" id="card-6">
+      <div class="diagram-header">
+        <div class="diagram-title">Figure 2.6: Sequence Diagram: 5-Phase Autopilot Self-Healing</div>
+        <div class="diagram-section">Section 2.8</div>
+      </div>
+      <p class="diagram-desc">Chronological message exchange between Backend, Gemini AI, Host Agent Daemon, and MongoDB during an autonomous self-healing recovery cycle.</p>
+      <div class="mermaid-box">
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor SRE as DevOps Engineer / System
+    participant Server as SentinelOps Server (Backend)
+    participant AI as Gemini 2.5 Flash / Rules Engine
+    participant DB as MongoDB Atlas
+    participant Agent as Remote Agent Daemon (Host)
+    participant Channel as Slack / Discord / Email
+
+    Note over Server, DB: Telemetry Polling triggers Anomaly Detection
+    Server->>Server: Detects Z-Score Anomaly (Z = 3.2 > 2.5)
+    Server->>DB: Persist Incident {type: 'CPU', severity: 'HIGH'}
+    Server->>Channel: Send Alert Notification (Webhook/SMTP)
+    
+    opt Autopilot is Enabled & Cooldown Elapsed (>30 min)
+        Note over Server, Agent: PHASE 1: DIAGNOSIS GENERATION
+        Server->>AI: Prompt with telemetry & top process context
+        AI-->>Server: Diagnostic Command: "Get-Process | Sort-Object CPU -Desc | Select -First 5"
+        
+        Note over Server, Agent: PHASE 2: DIAGNOSIS EXECUTION
+        Server->>Agent: Socket.IO emit: "execute-command"
+        Agent->>Agent: Check against ALLOWED_COMMAND_PATTERNS
+        Agent->>Agent: Execute native child_process.exec()
+        Agent-->>Server: Socket.IO emit: "command-output" (Raw Process List)
+        
+        Note over Server, AI: PHASE 3: REMEDIATION STRATEGY
+        Server->>AI: Prompt with diagnostic output for safe repair
+        AI-->>Server: Remediation Command: "[System.GC]::Collect()" or lower thread priority
+        
+        Note over Server, Agent: PHASE 4: REMEDIATION APPLICATION
+        Server->>Agent: Socket.IO emit: "execute-command" (Remediation)
+        Agent->>Agent: Validate allowlist & execute remediation
+        Agent-->>Server: Socket.IO emit: "command-close" (Return Code: 0)
+        
+        Note over Server, Agent: PHASE 5: RECOVERY VERIFICATION
+        Server->>Server: Wait 6,000ms stabilization interval
+        Server->>Agent: Sample post-fix hardware telemetry
+        alt CPU / RAM dropped below threshold
+            Server->>DB: Log AutopilotEvent: status = "RESOLVED"
+            Server->>Server: Broadcast "autopilot-event-update" to UI
+            Server->>Channel: Notify Resolution: "Incident Auto-Remediated"
+        else Anomaly persists
+            Server->>DB: Log AutopilotEvent: status = "ESCALATED"
+            Server->>Channel: Alert: "Autopilot Failed - Human Intervention Required"
+        end
+    end
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. COMPONENT DIAGRAM -->
+    <div class="diagram-card" id="card-7">
+      <div class="diagram-header">
+        <div class="diagram-title">Figure 2.7: Component Diagram</div>
+        <div class="diagram-section">Section 2.9</div>
+      </div>
+      <p class="diagram-desc">Physical module decomposition showing decoupled boundaries between Presentation, Transport Gateways, Business Controllers, and Intelligence Adapters.</p>
+      <div class="mermaid-box">
+        <div class="mermaid">
+flowchart TD
+    subgraph Presentation["Presentation Tier (Client Side)"]
+        SPA["React 19 Single Page App"]
+        Charts["Recharts Telemetry Canvas"]
+        TerminalComp["Interactive Terminal Console"]
+        Gauges["Animated SVG Gauge Components"]
+        Toasts["React-Toastify Notification Engine"]
+    end
+
+    subgraph Gateway["Transport & Security Gateway"]
+        CORS["CORS Policy Middleware"]
+        HelmetMW["Helmet HTTP Headers"]
+        RateLimiter["Express-Rate-Limit (Auth)"]
+        JWTMiddleware["JWT Bearer Authentication"]
+        SocketServer["Socket.IO Full-Duplex Gateway"]
+    end
+
+    subgraph ApplicationCore["Application Business Core"]
+        AuthCtrl["Auth & API Key Controller"]
+        AutoCtrl["Autopilot Orchestration Controller"]
+        MetricsCtrl["Metrics & History Controller"]
+        ReportCtrl["PDFKit Executive Report Generator"]
+        DockerCtrl["Dockerode Container Engine"]
+    end
+
+    subgraph AnalyticalEngine["Analytical & Intelligence Core"]
+        ZScoreEngine["Rolling Z-Score Anomaly Engine"]
+        HoltEngine["Holt's DES Predictive Forecaster"]
+        GeminiAdapter["Google Gemini Generative AI Adapter"]
+        RuleFallbackEngine["Deterministic SRE Heuristic Rules"]
+    end
+
+    subgraph HostDaemon["Target Infrastructure Tier"]
+        AgentCore["Monitoring Agent (agent.js)"]
+        SysInfo["Systeminformation Hardware Probes"]
+        SafeExecEngine["Regex-Guarded Command Execution Engine"]
+    end
+
+    SPA --> CORS
+    SPA --> SocketServer
+    CORS --> HelmetMW --> RateLimiter --> JWTMiddleware
+    JWTMiddleware --> AuthCtrl
+    JWTMiddleware --> MetricsCtrl
+    JWTMiddleware --> AutoCtrl
+    JWTMiddleware --> ReportCtrl
+    
+    SocketServer --> AutoCtrl
+    AutoCtrl --> ZScoreEngine
+    AutoCtrl --> HoltEngine
+    AutoCtrl --> GeminiAdapter
+    GeminiAdapter -.-> RuleFallbackEngine
+    
+    SocketServer <--> AgentCore
+    AgentCore --> SysInfo
+    AgentCore --> SafeExecEngine
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. MODULE HIERARCHY -->
+    <div class="diagram-card" id="card-8">
+      <div class="diagram-header">
+        <div class="diagram-title">Figure 2.8: Module Hierarchy Diagram</div>
+        <div class="diagram-section">Section 2.10</div>
+      </div>
+      <p class="diagram-desc">Hierarchical architectural tree decomposing the entire SentinelOps AI codebase from root into subsystem and functional unit levels.</p>
+      <div class="mermaid-box">
+        <div class="mermaid">
+flowchart TD
+    Root["SentinelOps AI Platform (Root)"]
+    
+    Root --> Frontend["1. Frontend Subsystem (React 19 + Vite)"]
+    Root --> Backend["2. Backend Subsystem (Node.js 22 + Express 5)"]
+    Root --> Agent["3. Monitoring Daemon Subsystem (agent.js)"]
+    Root --> Storage["4. Persistence Subsystem (MongoDB Atlas)"]
+
+    Frontend --> F1["Pages (Landing, Login, Register, Dashboard)"]
+    Frontend --> F2["Visualizers (GaugeCard, CPUChart, NetworkChart)"]
+    Frontend --> F3["Controls (AutopilotConsole, TerminalConsole, DockerPanel)"]
+    Frontend --> F4["Communication (Socket.IO Client, Fetch REST API)"]
+
+    Backend --> B1["API Routes (/auth, /metrics, /incidents, /monitor, /reports)"]
+    Backend --> B2["Security Pipeline (JWT, Bcrypt, RateLimit, Helmet, CORS)"]
+    Backend --> B3["Intelligence Services (Z-Score Detector, Holt Forecaster, Gemini AI)"]
+    Backend --> B4["Infrastructure Services (Dockerode, Nodemailer, Slack, Discord)"]
+
+    Agent --> A1["Telemetry Probes (CPU, RAM, Disk fsSize, Network rx/tx)"]
+    Agent --> A2["Process Monitor (Top 10 CPU Tasks)"]
+    Agent --> A3["Command Executor (Regex-Guarded child_process.exec)"]
+
+    Storage --> S1["Users Collection (Role-based credentials, webhooks)"]
+    Storage --> S2["SystemMetrics Collection (Descending time-series index)"]
+    Storage --> S3["Incidents Collection (Severity enums, compound index)"]
+    Storage --> S4["AutopilotEvents Collection (Step-by-step audit trail)"]
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      themeVariables: {
+        darkMode: false,
+        background: '#ffffff',
+        mainBkg: '#ffffff',
+        nodeBorder: '#000000',
+        clusterBkg: '#f8fafc',
+        clusterBorder: '#000000',
+        lineColor: '#000000',
+        textColor: '#000000',
+        primaryColor: '#ffffff',
+        primaryTextColor: '#000000',
+        primaryBorderColor: '#000000',
+        secondaryColor: '#ffffff',
+        tertiaryColor: '#ffffff'
+      }
+    });
+
+    let isDark = false;
+    function toggleTheme() {
+      isDark = !isDark;
+      if (isDark) {
+        document.body.style.background = '#0b0f19';
+        document.body.style.color = '#f3f4f6';
+        document.querySelectorAll('.diagram-card').forEach(el => {
+          el.style.background = '#111827';
+          el.style.borderColor = 'rgba(255,255,255,0.1)';
+        });
+        document.querySelectorAll('.diagram-title').forEach(el => el.style.color = '#fff');
+        document.querySelectorAll('.diagram-desc').forEach(el => el.style.color = '#9ca3af');
+        document.querySelectorAll('.mermaid-box').forEach(el => el.style.background = '#0d1322');
+      } else {
+        document.body.style.background = '#ffffff';
+        document.body.style.color = '#000000';
+        document.querySelectorAll('.diagram-card').forEach(el => {
+          el.style.background = '#ffffff';
+          el.style.borderColor = '#000000';
+        });
+        document.querySelectorAll('.diagram-title').forEach(el => el.style.color = '#000000');
+        document.querySelectorAll('.diagram-desc').forEach(el => el.style.color = '#334155');
+        document.querySelectorAll('.mermaid-box').forEach(el => el.style.background = '#ffffff');
+      }
+    }
+  </script>
+</body>
+</html>
